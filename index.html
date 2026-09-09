@@ -1,0 +1,3200 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>PUBG Mobile Pro Optimizer — Qurilmaga Moslangan Sezuvchanlik</title>
+  <meta name="theme-color" content="#080a10">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+  <style>
+    :root {
+      --bg-dark: #07090e;
+      --bg-card: rgba(18, 22, 34, 0.82);
+      --bg-card-hover: rgba(26, 32, 50, 0.92);
+      --border-glow: rgba(255, 115, 0, 0.35);
+      --border-subtle: rgba(255, 255, 255, 0.08);
+      --accent-orange: #ff6a00;
+      --accent-amber: #ff9800;
+      --accent-gold: #ffc107;
+      --accent-cyan: #00e5ff;
+      --accent-green: #00e676;
+      --text-main: #f3f5fa;
+      --text-muted: #8e98af;
+      --text-dim: #5c6479;
+      --radius-xl: 26px;
+      --radius-lg: 20px;
+      --radius-md: 14px;
+      --radius-sm: 10px;
+      --font-main: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-mono: 'Space Grotesk', monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    body {
+      font-family: var(--font-main);
+      background-color: var(--bg-dark);
+      background-image: 
+        radial-gradient(1000px 500px at 50% -50px, rgba(255, 106, 0, 0.18), transparent 65%),
+        radial-gradient(600px 400px at 95% 40%, rgba(255, 152, 0, 0.09), transparent 60%),
+        radial-gradient(700px 500px at 5% 85%, rgba(0, 229, 255, 0.08), transparent 65%);
+      background-attachment: fixed;
+      color: var(--text-main);
+      min-height: 100vh;
+      overflow-x: hidden;
+      display: flex;
+      justify-content: center;
+      padding: 16px 14px 105px;
+    }
+
+    #bgCanvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.55;
+    }
+
+    .app-viewport {
+      width: 100%;
+      max-width: 440px;
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    /* Top Dynamic Island */
+    .dynamic-island-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(14, 18, 28, 0.75);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--border-subtle);
+      border-radius: 999px;
+      padding: 8px 16px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+    }
+
+    .island-pill {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .live-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent-orange);
+      box-shadow: 0 0 10px var(--accent-orange);
+      animation: pulseDot 2s infinite ease-in-out;
+    }
+
+    @keyframes pulseDot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.8); }
+    }
+
+    .island-title {
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      color: var(--text-main);
+      text-transform: uppercase;
+    }
+
+    .island-badge {
+      font-size: 11px;
+      font-weight: 700;
+      color: #000;
+      background: linear-gradient(135deg, #ffaa00, #ff6a00);
+      padding: 3px 9px;
+      border-radius: 999px;
+      letter-spacing: 0.4px;
+    }
+
+    /* Music Pill in Dynamic Island */
+    .music-pill-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255, 106, 0, 0.12);
+      border: 1px solid rgba(255, 106, 0, 0.35);
+      padding: 3px 9px;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .music-pill-btn:hover {
+      background: rgba(255, 106, 0, 0.25);
+      border-color: var(--accent-orange);
+    }
+    .music-pill-btn:active {
+      transform: scale(0.95);
+    }
+    .music-pill-btn.muted {
+      background: rgba(255, 255, 255, 0.05);
+      border-color: rgba(255, 255, 255, 0.12);
+      opacity: 0.7;
+    }
+    .music-pill-btn.muted .eq-bar {
+      animation: none !important;
+      height: 3px !important;
+      background: #8e98af !important;
+    }
+
+    /* Animated Sound Equalizer Waves */
+    .equalizer-wrap {
+      display: flex;
+      align-items: flex-end;
+      gap: 2px;
+      height: 12px;
+      width: 14px;
+    }
+    .eq-bar {
+      width: 2px;
+      border-radius: 1px;
+      background: var(--accent-orange);
+      animation: eqDance 0.8s infinite ease-in-out alternate;
+    }
+    .eq-bar:nth-child(1) { height: 4px; animation-delay: 0.1s; }
+    .eq-bar:nth-child(2) { height: 11px; animation-delay: 0.3s; }
+    .eq-bar:nth-child(3) { height: 7px; animation-delay: 0.15s; }
+    .eq-bar:nth-child(4) { height: 9px; animation-delay: 0.4s; }
+
+    @keyframes eqDance {
+      0% { height: 2px; }
+      50% { height: 12px; }
+      100% { height: 5px; }
+    }
+
+    /* Hero Banner */
+    .hero-card {
+      position: relative;
+      border-radius: var(--radius-xl);
+      padding: 22px 20px;
+      background: linear-gradient(145deg, rgba(30, 36, 56, 0.8) 0%, rgba(16, 20, 32, 0.95) 100%);
+      backdrop-filter: blur(25px);
+      -webkit-backdrop-filter: blur(25px);
+      border: 1px solid var(--border-glow);
+      box-shadow: 0 14px 40px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+      overflow: hidden;
+    }
+
+    .hero-card::after {
+      content: '';
+      position: absolute;
+      top: -30%;
+      right: -20%;
+      width: 180px;
+      height: 180px;
+      background: radial-gradient(circle, rgba(255, 106, 0, 0.3) 0%, transparent 70%);
+      filter: blur(35px);
+      pointer-events: none;
+    }
+
+    .hero-subtitle {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--accent-orange);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 6px;
+    }
+
+    .hero-title {
+      font-size: 24px;
+      font-weight: 900;
+      line-height: 1.2;
+      background: linear-gradient(180deg, #ffffff 30%, #cfd7ea 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 8px;
+    }
+
+    .hero-desc {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.45;
+    }
+
+    .hero-specs-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 14px;
+      flex-wrap: wrap;
+    }
+
+    .spec-pill {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 5px 11px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: #d6deee;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .spec-pill.active {
+      background: rgba(255, 106, 0, 0.15);
+      border-color: rgba(255, 106, 0, 0.4);
+      color: #ffaa55;
+    }
+
+    /* Section Label */
+    .section-label {
+      font-size: 13px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-dim);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin: 4px 4px 0;
+    }
+
+    .section-label span {
+      color: var(--accent-orange);
+      font-size: 11px;
+    }
+
+    /* Cards */
+    .glass-card {
+      background: var(--bg-card);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 16px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .input-label {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .input-label small {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--text-muted);
+    }
+
+    /* Device Chips */
+    .chips-scroll {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+      scrollbar-width: none;
+    }
+    .chips-scroll::-webkit-scrollbar { display: none; }
+
+    .chip-btn {
+      flex: 0 0 auto;
+      padding: 8px 14px;
+      border-radius: var(--radius-md);
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-subtle);
+      color: #c7d1e4;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+
+    .chip-btn.selected {
+      background: linear-gradient(135deg, rgba(255, 106, 0, 0.25), rgba(255, 152, 0, 0.15));
+      border-color: var(--accent-orange);
+      color: #fff;
+      box-shadow: 0 4px 15px rgba(255, 106, 0, 0.25);
+    }
+
+    .text-input {
+      width: 100%;
+      background: rgba(10, 13, 20, 0.75);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 11px 14px;
+      color: #fff;
+      font-family: var(--font-main);
+      font-size: 13px;
+      font-weight: 600;
+      outline: none;
+    }
+    .text-input:focus {
+      border-color: var(--accent-orange);
+      box-shadow: 0 0 12px rgba(255, 106, 0, 0.3);
+    }
+
+    /* Grids */
+    .grid-2x2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .grid-4x1 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+    .grid-3x1 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+
+    .select-card {
+      background: rgba(14, 18, 28, 0.6);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 10px 8px;
+      text-align: center;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.2s ease;
+    }
+
+    .select-card .icon { font-size: 18px; }
+    .select-card .title { font-size: 12px; font-weight: 700; color: #dbe2f0; }
+    .select-card .desc { font-size: 10px; color: var(--text-dim); }
+
+    .select-card.active {
+      background: linear-gradient(145deg, rgba(255, 106, 0, 0.22), rgba(255, 152, 0, 0.1));
+      border-color: var(--accent-orange);
+      box-shadow: 0 4px 15px rgba(255, 106, 0, 0.2);
+    }
+    .select-card.active .title { color: #fff; }
+    .select-card.active .desc { color: #ffaa66; }
+
+    /* DPI Slider */
+    .slider-container {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      background: rgba(12, 15, 24, 0.65);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 12px 14px;
+    }
+
+    .slider-val-badge {
+      font-family: var(--font-mono);
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--accent-cyan);
+      background: rgba(0, 229, 255, 0.12);
+      border: 1px solid rgba(0, 229, 255, 0.25);
+      padding: 3px 10px;
+      border-radius: 999px;
+    }
+
+    .range-input {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 6px;
+      border-radius: 999px;
+      background: #1c2236;
+      outline: none;
+    }
+
+    .range-input::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #fff;
+      border: 3px solid var(--accent-orange);
+      box-shadow: 0 0 10px var(--accent-orange);
+      cursor: pointer;
+    }
+
+    /* Buttons */
+    .cta-btn-wrap { display: flex; gap: 10px; }
+
+    .calc-btn {
+      flex: 1;
+      padding: 15px 20px;
+      background: linear-gradient(135deg, #ff7b00 0%, #ff5100 50%, #e04000 100%);
+      border: none;
+      border-radius: var(--radius-lg);
+      color: #fff;
+      font-family: var(--font-main);
+      font-size: 15px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      box-shadow: 0 8px 25px rgba(255, 80, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+      transition: transform 0.15s;
+    }
+    .calc-btn:active { transform: scale(0.97); }
+
+    .dice-btn {
+      padding: 15px 18px;
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      color: #fff;
+      font-size: 18px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+    .dice-btn:active {
+      transform: rotate(45deg) scale(0.95);
+      background: rgba(255, 106, 0, 0.2);
+      border-color: var(--accent-orange);
+    }
+
+    /* Results Box */
+    .results-box {
+      border: 1px solid rgba(255, 120, 0, 0.35);
+      background: linear-gradient(160deg, rgba(24, 29, 46, 0.88) 0%, rgba(12, 15, 26, 0.95) 100%);
+      box-shadow: 0 15px 45px rgba(0, 0, 0, 0.6), 0 0 25px rgba(255, 106, 0, 0.15);
+      border-radius: var(--radius-xl);
+      padding: 20px 18px;
+      position: relative;
+    }
+
+    .results-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding-bottom: 12px;
+    }
+
+    .copy-btn {
+      padding: 7px 13px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .copy-btn:active {
+      background: var(--accent-orange);
+      transform: scale(0.95);
+    }
+
+    /* 4 Metrics */
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .metric-card {
+      background: rgba(10, 13, 22, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: var(--radius-md);
+      padding: 14px 12px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .metric-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; height: 3px;
+      background: linear-gradient(90deg, var(--accent-orange), var(--accent-amber));
+    }
+
+    .metric-header { display: flex; justify-content: space-between; align-items: flex-start; }
+    .metric-tag { font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; }
+    .metric-range { font-size: 9px; font-weight: 700; color: var(--accent-orange); background: rgba(255, 106, 0, 0.12); padding: 2px 6px; border-radius: 4px; }
+
+    .metric-value-wrap { margin: 10px 0 6px; display: flex; align-items: baseline; gap: 4px; }
+    .metric-num {
+      font-family: var(--font-mono);
+      font-size: 32px;
+      font-weight: 800;
+      line-height: 1;
+      color: #ffffff;
+      text-shadow: 0 0 15px rgba(255, 106, 0, 0.35);
+    }
+    .metric-unit { font-size: 14px; font-weight: 700; color: var(--accent-amber); }
+
+    .metric-bar-bg {
+      width: 100%;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+    .metric-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #ff5100, #ffaa00);
+      border-radius: 999px;
+      transition: width 0.5s ease;
+    }
+    .metric-tip { font-size: 10px; color: var(--text-dim); margin-top: 6px; line-height: 1.3; }
+
+    /* Joystick Simulator */
+    .joystick-demo-card {
+      background: rgba(9, 12, 20, 0.9);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 16px;
+      text-align: center;
+      position: relative;
+    }
+
+    .demo-arena {
+      width: 100%;
+      height: 180px;
+      background: radial-gradient(circle at center, rgba(30, 36, 56, 0.4) 0%, rgba(10, 13, 22, 0.95) 75%);
+      border: 1px dashed rgba(255, 255, 255, 0.12);
+      border-radius: var(--radius-md);
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      touch-action: none;
+    }
+
+    .arena-grid-lines {
+      position: absolute;
+      inset: 0;
+      background-image: linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+                        linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+      background-size: 20px 20px;
+      pointer-events: none;
+    }
+
+    .v-joystick-base {
+      position: absolute;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255, 106, 0, 0.12) 0%, rgba(20, 24, 38, 0.6) 80%);
+      border: 2px solid rgba(255, 106, 0, 0.45);
+      box-shadow: 0 0 25px rgba(255, 106, 0, 0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: width 0.3s, height 0.3s;
+      cursor: grab;
+    }
+
+    .v-sprint-threshold {
+      position: absolute;
+      border-radius: 50%;
+      border: 1px dashed rgba(0, 229, 255, 0.4);
+      pointer-events: none;
+    }
+
+    .v-joystick-stick {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 30%, #ff8800, #ff4000);
+      border: 2px solid #ffffff;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6), 0 0 15px rgba(255, 106, 0, 0.5);
+      position: absolute;
+      pointer-events: none;
+    }
+
+    .arena-hint {
+      position: absolute;
+      bottom: 8px;
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--text-dim);
+      background: rgba(0, 0, 0, 0.5);
+      padding: 3px 8px;
+      border-radius: 999px;
+      pointer-events: none;
+    }
+
+    /* FOV Radar */
+    .fov-sim-wrap { display: flex; gap: 8px; }
+    .fov-box {
+      flex: 1;
+      background: rgba(14, 18, 28, 0.7);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      padding: 8px;
+      text-align: center;
+    }
+    .fov-radar {
+      height: 45px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .fov-cone {
+      position: absolute;
+      bottom: 5px;
+      width: 0; height: 0;
+      border-left: 28px solid transparent;
+      border-right: 28px solid transparent;
+      border-top: 38px solid rgba(255, 106, 0, 0.35);
+      transform-origin: bottom center;
+    }
+
+    /* ========================================================
+       PUBG SEZUVCHANLIK MENYUSI (SCREENSHOTLAR BILAN 100% BIR XIL)
+       ======================================================== */
+    .pubg-sens-container {
+      background: linear-gradient(170deg, rgba(20, 25, 40, 0.9) 0%, rgba(11, 14, 24, 0.96) 100%);
+      border: 1px solid rgba(255, 106, 0, 0.35);
+      border-radius: var(--radius-xl);
+      padding: 18px 16px;
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    /* Device analysis banner inside sens */
+    .device-analysis-banner {
+      background: rgba(0, 229, 255, 0.08);
+      border: 1px solid rgba(0, 229, 255, 0.2);
+      border-radius: var(--radius-md);
+      padding: 10px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .device-analysis-text {
+      font-size: 11px;
+      color: #d2e4f8;
+      line-height: 1.4;
+    }
+    .device-analysis-text b {
+      color: var(--accent-cyan);
+    }
+
+    /* Subtabs */
+    .pubg-subnav-row {
+      display: flex;
+      gap: 8px;
+      background: rgba(10, 13, 22, 0.85);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 4px;
+    }
+
+    .pubg-subtab {
+      flex: 1;
+      padding: 9px 8px;
+      border: none;
+      background: transparent;
+      border-radius: var(--radius-sm);
+      color: var(--text-muted);
+      font-size: 12px;
+      font-weight: 800;
+      cursor: pointer;
+      text-align: center;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      transition: all 0.2s;
+    }
+
+    .pubg-subtab.active {
+      background: linear-gradient(135deg, rgba(255, 106, 0, 0.25), rgba(255, 140, 0, 0.15));
+      border: 1px solid var(--accent-orange);
+      color: #fff;
+    }
+
+    /* Sens category header */
+    .sens-cat-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-left: 3px solid var(--accent-orange);
+      padding-left: 8px;
+      margin-top: 4px;
+    }
+
+    .sens-cat-header h4 {
+      font-size: 13px;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: 0.3px;
+    }
+
+    .sens-cat-header .gyro-status-tag {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--accent-cyan);
+      background: rgba(0, 229, 255, 0.12);
+      border: 1px solid rgba(0, 229, 255, 0.25);
+      padding: 2px 8px;
+      border-radius: 999px;
+    }
+
+    /* PUBG Exact in-game Row */
+    .pubg-sens-row {
+      background: rgba(14, 18, 28, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: var(--radius-md);
+      padding: 10px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .pubg-row-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .pubg-scope-name {
+      font-size: 12px;
+      font-weight: 700;
+      color: #e2e8f5;
+    }
+
+    .pubg-controls-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .pubg-val-badge {
+      font-family: var(--font-mono);
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--accent-orange);
+      min-width: 44px;
+      text-align: right;
+    }
+
+    .pubg-btn-step {
+      width: 26px;
+      height: 26px;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: #fff;
+      font-size: 14px;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .pubg-btn-step:active {
+      background: var(--accent-orange);
+    }
+
+    .pubg-slider-track {
+      width: 100%;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 999px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .pubg-slider-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #ff7b00, #ffaa00);
+      border-radius: 999px;
+      transition: width 0.3s ease;
+    }
+
+    /* Sens Code Box */
+    .sens-code-container {
+      background: rgba(10, 13, 22, 0.85);
+      border: 1px dashed rgba(255, 170, 0, 0.35);
+      border-radius: var(--radius-md);
+      padding: 12px 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .sens-code-val {
+      font-family: var(--font-mono);
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--accent-gold);
+    }
+
+    /* Bottom Nav with Epic Cyber Animations */
+    .bottom-nav-bar {
+      position: fixed;
+      bottom: 14px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: calc(100% - 28px);
+      max-width: 420px;
+      background: rgba(14, 18, 28, 0.92);
+      backdrop-filter: blur(28px);
+      -webkit-backdrop-filter: blur(28px);
+      border: 1px solid rgba(255, 140, 0, 0.22);
+      border-radius: 999px;
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      padding: 8px 14px;
+      box-shadow: 0 14px 40px rgba(0, 0, 0, 0.7), 0 0 25px rgba(255, 106, 0, 0.15);
+      z-index: 100;
+    }
+
+    .nav-tab-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      padding: 6px 16px;
+      border-radius: 999px;
+      cursor: pointer;
+      color: var(--text-muted);
+      transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+      position: relative;
+    }
+
+    .nav-tab-item .tab-icon {
+      font-size: 20px;
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .nav-tab-item .tab-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+    }
+
+    .nav-tab-item.active {
+      color: #fff;
+      background: rgba(255, 106, 0, 0.18);
+      box-shadow: 0 0 15px rgba(255, 106, 0, 0.2);
+    }
+
+    .nav-tab-item.active .tab-icon {
+      color: var(--accent-orange);
+      transform: scale(1.15);
+    }
+
+    /* Wiggle and pulse animation classes */
+    .icon-wiggle {
+      animation: tabWiggle 0.45s ease;
+    }
+    @keyframes tabWiggle {
+      0% { transform: scale(1) rotate(0deg); }
+      25% { transform: scale(1.3) rotate(-18deg); }
+      50% { transform: scale(1.2) rotate(14deg); }
+      75% { transform: scale(1.15) rotate(-6deg); }
+      100% { transform: scale(1.15) rotate(0deg); }
+    }
+
+    .icon-spin {
+      animation: tabSpin 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    @keyframes tabSpin {
+      0% { transform: scale(1) rotate(0deg); }
+      50% { transform: scale(1.35) rotate(180deg); }
+      100% { transform: scale(1.15) rotate(360deg); }
+    }
+
+    /* Floating Center Button Wrapper */
+    .nav-center-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Shockwave Ripple Ring */
+    .nav-shockwave {
+      position: absolute;
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      border: 2px solid var(--accent-orange);
+      pointer-events: none;
+      opacity: 0;
+      transform: translate(-50%, -50%) scale(0.8);
+      top: 50%;
+      left: 50%;
+    }
+
+    .nav-shockwave.burst {
+      animation: shockwaveBurst 0.65s ease-out forwards;
+    }
+
+    @keyframes shockwaveBurst {
+      0% { transform: translate(-50%, -50%) scale(0.8); opacity: 1; border-color: #ffaa00; }
+      100% { transform: translate(-50%, -50%) scale(2.4); opacity: 0; border-color: var(--accent-orange); }
+    }
+
+    /* Center Elevated Dice Button with Glowing Breathing Aura */
+    .nav-center-btn {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 30%, #ff8c00 0%, #ff4500 70%, #d83500 100%);
+      border: 2.5px solid #ffffff;
+      box-shadow: 
+        0 0 0 0 rgba(255, 106, 0, 0.6),
+        0 0 25px rgba(255, 106, 0, 0.8),
+        0 8px 20px rgba(0, 0, 0, 0.6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 22px;
+      cursor: pointer;
+      position: relative;
+      transform: translateY(-10px);
+      transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s;
+      animation: diceLevitateGlow 3s infinite ease-in-out;
+    }
+
+    /* Levitating + Glowing Breathing Halo */
+    @keyframes diceLevitateGlow {
+      0%, 100% {
+        transform: translateY(-10px);
+        box-shadow: 
+          0 0 0 0 rgba(255, 106, 0, 0.5),
+          0 0 20px rgba(255, 106, 0, 0.75),
+          0 8px 20px rgba(0, 0, 0, 0.6);
+      }
+      50% {
+        transform: translateY(-15px);
+        box-shadow: 
+          0 0 0 8px rgba(255, 106, 0, 0),
+          0 0 35px rgba(255, 140, 0, 1),
+          0 12px 25px rgba(0, 0, 0, 0.7);
+      }
+    }
+
+    /* 3D Dice Roll Animation when clicked */
+    .nav-center-btn.rolling {
+      animation: roll3DPhysics 0.65s cubic-bezier(0.34, 1.56, 0.64, 1) forwards !important;
+    }
+
+    @keyframes roll3DPhysics {
+      0% {
+        transform: translateY(-10px) rotate(0deg) scale(1);
+      }
+      25% {
+        transform: translateY(-26px) rotate(220deg) scale(1.35);
+      }
+      50% {
+        transform: translateY(-20px) rotate(480deg) scale(1.2);
+      }
+      75% {
+        transform: translateY(-14px) rotate(640deg) scale(1.1);
+      }
+      100% {
+        transform: translateY(-10px) rotate(720deg) scale(1);
+      }
+    }
+
+    /* Number Shuffling Glow Animation */
+    .number-rolling {
+      animation: numberPop 0.15s infinite alternate;
+      color: var(--accent-gold) !important;
+      text-shadow: 0 0 25px rgba(255, 170, 0, 0.9) !important;
+    }
+
+    @keyframes numberPop {
+      0% { transform: scale(1); }
+      100% { transform: scale(1.1); }
+    }
+
+    /* Toast */
+    .toast-popup {
+      position: fixed;
+      top: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-60px);
+      background: rgba(14, 18, 28, 0.95);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--accent-green);
+      color: #fff;
+      padding: 10px 18px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(0, 230, 118, 0.3);
+      z-index: 1000;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .toast-popup.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+
+    /* Floating YouTube Music Widget (Alan Walker - On My Way) */
+    .yt-music-widget {
+      position: fixed;
+      bottom: 84px;
+      right: 14px;
+      z-index: 99;
+      background: rgba(14, 18, 26, 0.94);
+      border: 1px solid rgba(255, 106, 0, 0.4);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.75), 0 0 16px rgba(255, 106, 0, 0.25);
+      border-radius: 16px;
+      padding: 8px 12px;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-width: 310px;
+      transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    @media (max-width: 480px) {
+      .yt-music-widget {
+        right: 10px;
+        left: 10px;
+        max-width: calc(100vw - 20px);
+      }
+    }
+    .yt-widget-content {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .yt-song-details {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      overflow: hidden;
+      flex: 1;
+    }
+    .yt-album-art {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #ff6a00, #ff1a00);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
+      box-shadow: 0 0 10px rgba(255, 106, 0, 0.4);
+      flex-shrink: 0;
+    }
+    .yt-text-wrap {
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .yt-title {
+      font-size: 11px;
+      font-weight: 800;
+      color: #fff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 145px;
+    }
+    .yt-subtitle {
+      font-size: 9.5px;
+      color: var(--accent-orange);
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .yt-btn-group {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      flex-shrink: 0;
+    }
+    .yt-round-btn {
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #fff;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .yt-round-btn:hover {
+      background: rgba(255, 106, 0, 0.25);
+      border-color: var(--accent-orange);
+      transform: scale(1.08);
+    }
+    .yt-video-box {
+      width: 100%;
+      height: 160px;
+      border-radius: 10px;
+      overflow: hidden;
+      background: #000;
+      border: 1px solid rgba(255, 106, 0, 0.3);
+      transition: max-height 0.35s ease, opacity 0.25s ease;
+    }
+    .yt-video-box iframe {
+      width: 100% !important;
+      height: 100% !important;
+      border: none;
+    }
+    .yt-video-box.collapsed {
+      max-height: 0;
+      height: 0;
+      opacity: 0;
+      border: none;
+      margin: 0;
+      pointer-events: none;
+    }
+
+    /* Main Hero Music Player Card */
+    .music-player-card {
+      background: linear-gradient(135deg, rgba(28, 22, 16, 0.9), rgba(16, 20, 32, 0.95));
+      border: 1px solid rgba(255, 106, 0, 0.45);
+      border-radius: var(--radius-lg);
+      padding: 14px;
+      margin-top: 18px;
+      margin-bottom: 22px;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6), 0 0 20px rgba(255, 106, 0, 0.15);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      position: relative;
+      overflow: hidden;
+    }
+    .music-player-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, #ff6a00, #ffaa00, transparent);
+    }
+    .music-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .music-info-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex: 1;
+      min-width: 200px;
+    }
+    .music-eq-disc {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #ff6a00, #ff1a00);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      box-shadow: 0 0 15px rgba(255, 106, 0, 0.5);
+      flex-shrink: 0;
+      animation: discSpin 8s linear infinite paused;
+    }
+    .music-player-card.playing .music-eq-disc {
+      animation-play-state: running;
+    }
+    @keyframes discSpin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    .music-track-title {
+      font-size: 13px;
+      font-weight: 800;
+      color: #fff;
+      line-height: 1.3;
+    }
+    .music-track-sub {
+      font-size: 11px;
+      color: var(--accent-orange);
+      font-weight: 600;
+      margin-top: 2px;
+    }
+    .music-big-btn {
+      background: linear-gradient(135deg, #ff6a00, #ff3c00);
+      color: #fff;
+      border: none;
+      padding: 9px 18px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(255, 106, 0, 0.4);
+      transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .music-big-btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 6px 20px rgba(255, 106, 0, 0.6);
+    }
+    .music-big-btn:active {
+      transform: scale(0.95);
+    }
+    /* Cyber Visualizer & Audio Player */
+    .music-cyber-visualizer {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      padding: 14px;
+      background: rgba(10, 13, 20, 0.75);
+      border-radius: 12px;
+      border: 1px solid rgba(255, 106, 0, 0.25);
+    }
+    .visualizer-wave {
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      gap: 4px;
+      height: 48px;
+      padding: 4px 0;
+    }
+    .v-bar {
+      width: 5px;
+      height: 6px;
+      background: linear-gradient(180deg, #ffaa00, #ff5500);
+      border-radius: 3px;
+      transition: height 0.15s ease;
+    }
+    .music-player-card.playing .v-bar {
+      animation: vWave 0.7s infinite ease-in-out alternate;
+    }
+    .music-player-card.playing .v-bar:nth-child(2n) { animation-duration: 0.5s; animation-delay: 0.1s; }
+    .music-player-card.playing .v-bar:nth-child(3n) { animation-duration: 0.85s; animation-delay: 0.2s; }
+    .music-player-card.playing .v-bar:nth-child(4n) { animation-duration: 0.6s; animation-delay: 0.15s; }
+    .music-player-card.playing .v-bar:nth-child(5n) { animation-duration: 0.75s; animation-delay: 0.25s; }
+
+    @keyframes vWave {
+      0% { height: 6px; opacity: 0.4; }
+      100% { height: 44px; opacity: 1; filter: drop-shadow(0 0 6px rgba(255, 106, 0, 0.8)); }
+    }
+
+    .audio-progress-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .audio-time {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-muted);
+      min-width: 38px;
+      font-variant-numeric: tabular-nums;
+    }
+    .audio-progress-bar {
+      flex: 1;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 3px;
+      position: relative;
+      cursor: pointer;
+      overflow: hidden;
+    }
+    .audio-progress-fill {
+      width: 0%;
+      height: 100%;
+      background: linear-gradient(90deg, #ff6a00, #ffaa00);
+      box-shadow: 0 0 10px rgba(255, 106, 0, 0.6);
+      border-radius: 3px;
+      transition: width 0.1s linear;
+    }
+    .audio-controls-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .volume-slider-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.05);
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .music-volume-range {
+      width: 80px;
+      accent-color: var(--accent-orange);
+      cursor: pointer;
+    }
+    .music-extra-row {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding-top: 6px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .music-hint-badge {
+      font-size: 11px;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+    .music-quick-actions {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .music-sub-btn {
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid rgba(255, 106, 0, 0.35);
+      color: #fff;
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: 700;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .music-sub-btn:hover {
+      background: rgba(255, 106, 0, 0.25);
+      border-color: var(--accent-orange);
+      transform: translateY(-1px);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Ambient Particles -->
+  <canvas id="bgCanvas"></canvas>
+
+  <!-- Toast -->
+  <div id="toast" class="toast-popup">
+    <span>✅</span>
+    <span id="toastMsg">Nusxalandi!</span>
+  </div>
+
+  <div class="app-viewport">
+
+    <!-- Audio Background Player (Alan Walker - On My Way) -->
+    <audio id="bgmAudio" loop preload="auto">
+      <source src="pubg_theme.mp3" type="audio/mpeg">
+      <source src="https://archive.org/download/y-2mate.com-morissette-covers-secret-love-song-little-mix-live-on-wish-107.5-bus_202010/y2mate.com%20-%20Alan%20Walker%2C%20Sabrina%20Carpenter%20%26%20Farruko%20-%20On%20My%20Way.mp3" type="audio/mpeg">
+    </audio>
+
+    <!-- Top Dynamic Bar with Music Controller -->
+    <header class="dynamic-island-header">
+      <div class="island-pill">
+        <div class="live-dot"></div>
+        <span class="island-title">PUBG PRO</span>
+      </div>
+
+      <!-- Music Pill Controller (Alan Walker - On My Way) -->
+      <div class="music-pill-btn" id="musicToggleBtn" onclick="toggleBgm()" title="Alan Walker - On My Way (O'chirish/Yoqish)">
+        <div class="equalizer-wrap" id="eqBars">
+          <div class="eq-bar"></div>
+          <div class="eq-bar"></div>
+          <div class="eq-bar"></div>
+          <div class="eq-bar"></div>
+        </div>
+        <span id="musicLabelText" style="font-size:10px; font-weight:800; color:#ffaa55;">ON MY WAY</span>
+        <span id="musicMuteIcon" style="font-size:12px;">🔊</span>
+      </div>
+
+      <span class="island-badge" id="topStatusBadge">120Hz ULTRA</span>
+    </header>
+
+    <!-- Main Hero Banner -->
+    <section class="hero-card">
+      <div class="hero-subtitle">⚡ O'zbekcha Kiber Analizator</div>
+      <h1 class="hero-title">Boshqaruv & Sezuvchanlik</h1>
+      <p class="hero-desc">
+        Har bir telefonning ekrani, DPI, sensor reaksiyasi va kiber fizikasiga 100% individual hisoblab beruvchi algoritm.
+      </p>
+
+      <div class="hero-specs-row">
+        <div class="spec-pill active" id="specDevicePill">📱 iPhone 14 Pro</div>
+        <div class="spec-pill" id="specHzPill">⚡ 120 Hz</div>
+        <div class="spec-pill" id="specClawPill">🖐️ 5 Barmoq</div>
+        <div class="spec-pill" id="specDpiPill">🎯 460 DPI</div>
+      </div>
+    </section>
+
+    <!-- PUBG Theme Player: Alan Walker - On My Way (Cyber Audio Player) -->
+    <section class="music-player-card" id="mainMusicCard">
+      <div class="music-card-header">
+        <div class="music-info-left">
+          <div class="music-eq-disc" id="musicDiscIcon">🎧</div>
+          <div>
+            <div class="music-track-title">Alan Walker, Sabrina Carpenter & Farruko — On My Way</div>
+            <div class="music-track-sub" id="musicTrackStatusText">PUBG Mobile Rasmiy Saundtreki • Fon Musiqasi</div>
+          </div>
+        </div>
+        <div class="music-btn-actions">
+          <button class="music-big-btn" id="musicHeroPlayBtn" onclick="toggleBgm()">
+            <span id="heroPlayIcon">▶️</span> <span id="heroPlayText">Musiqani tinglash</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Cyber Visualizer Bars & Player Controls -->
+      <div class="music-cyber-visualizer">
+        <div class="visualizer-wave" id="visualizerWave">
+          <span class="v-bar"></span><span class="v-bar"></span><span class="v-bar"></span><span class="v-bar"></span>
+          <span class="v-bar"></span><span class="v-bar"></span><span class="v-bar"></span><span class="v-bar"></span>
+          <span class="v-bar"></span><span class="v-bar"></span><span class="v-bar"></span><span class="v-bar"></span>
+          <span class="v-bar"></span><span class="v-bar"></span><span class="v-bar"></span><span class="v-bar"></span>
+          <span class="v-bar"></span><span class="v-bar"></span><span class="v-bar"></span><span class="v-bar"></span>
+          <span class="v-bar"></span><span class="v-bar"></span><span class="v-bar"></span><span class="v-bar"></span>
+        </div>
+
+        <div class="audio-progress-wrap">
+          <span class="audio-time" id="audioCurrentTime">00:00</span>
+          <div class="audio-progress-bar" id="audioProgressBar" onclick="seekAudio(event)">
+            <div class="audio-progress-fill" id="audioProgressFill"></div>
+          </div>
+          <span class="audio-time" id="audioDuration">03:13</span>
+        </div>
+
+        <div class="audio-controls-bottom">
+          <div class="volume-slider-wrap">
+            <span style="font-size:12px;">🔊</span>
+            <input type="range" id="musicVolumeSlider" min="0" max="100" value="25" class="music-volume-range" oninput="changeVolume(this.value)">
+            <span id="volumePctDisplay" style="font-size:11px; color:var(--accent-orange); font-weight:700;">25%</span>
+          </div>
+
+          <div class="music-quick-actions">
+            <input type="file" id="localAudioInput" accept="audio/*" style="display:none;" onchange="handleLocalAudio(this)">
+            <button class="music-sub-btn" onclick="triggerLocalAudioPicker()" title="Telefonda yoki kompyuterdagi MP3 faylni tanlash">
+              📁 O'zingizdagi MP3 faylni tanlash
+            </button>
+            <a class="music-sub-btn" href="https://youtu.be/uXuG1k4K81o?si=BPOY8IOOC3eL1x1H" target="_blank" rel="noopener noreferrer" title="YouTube ilovasida to'liq klipni ko'rish">
+              ↗️ YouTube klipi
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================
+         1. NASTROYKALAR / SOZLAMALAR KIRITISH (INPUTS)
+         ======================================================== -->
+    <div class="section-label">
+      1. Qurilma va Ekran Sozlamalari <span>Qadam 1/2</span>
+    </div>
+
+    <section class="glass-card form-group">
+      <div class="input-label">
+        Telefon Modeli
+        <small>Tanlang yoki yozing</small>
+      </div>
+
+      <div class="chips-scroll" id="phoneChips">
+        <button class="chip-btn selected" data-model="iPhone 14 Pro" data-hz="120" data-dpi="460">🍎 iPhone 14 Pro</button>
+        <button class="chip-btn" data-model="iPhone 15 / 16 Pro Max" data-hz="120" data-dpi="460">🍎 iPhone 15/16 Pro</button>
+        <button class="chip-btn" data-model="iPhone 13 / 12 / 11" data-hz="60" data-dpi="460">🍎 iPhone 11-13</button>
+        <button class="chip-btn" data-model="Poco X6 Pro / F5 / F6" data-hz="120" data-dpi="440">📱 Poco X6/F5/F6</button>
+        <button class="chip-btn" data-model="Samsung S23/S24/S25 Ultra" data-hz="120" data-dpi="500">📱 Samsung S-Ultra</button>
+        <button class="chip-btn" data-model="Redmi Note 12/13 Pro" data-hz="120" data-dpi="395">📱 Redmi Note Pro</button>
+        <button class="chip-btn" data-model="Realme GT / OnePlus" data-hz="120" data-dpi="450">📱 Realme / OnePlus</button>
+        <button class="chip-btn" data-model="iPad Pro / Mini" data-hz="120" data-dpi="264">📟 iPad / Planshet</button>
+      </div>
+
+      <div class="custom-input-wrap">
+        <input type="text" id="phoneInput" class="text-input" placeholder="Yoki telefon modelingizni kiriting..." value="iPhone 14 Pro">
+      </div>
+
+      <div class="input-label" style="margin-top: 4px;">
+        Ekran Yangilanish Tezligi (Hz)
+        <small id="hzLabel">120 Hz tanlangan</small>
+      </div>
+      <div class="grid-4x1" id="hzSelector">
+        <div class="select-card" data-hz="60">
+          <span class="title">60 Hz</span>
+          <span class="desc">Standart</span>
+        </div>
+        <div class="select-card" data-hz="90">
+          <span class="title">90 Hz</span>
+          <span class="desc">Silliq</span>
+        </div>
+        <div class="select-card active" data-hz="120">
+          <span class="title">120 Hz</span>
+          <span class="desc">Kiber</span>
+        </div>
+        <div class="select-card" data-hz="144">
+          <span class="title">144 Hz</span>
+          <span class="desc">Maksimal</span>
+        </div>
+      </div>
+
+      <div class="slider-container" style="margin-top: 4px;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <span class="input-label" style="margin:0;">Ekran DPI (Zichlik)</span>
+          <span class="slider-val-badge" id="dpiDisplay">460 DPI</span>
+        </div>
+        <input type="range" id="dpiSlider" class="range-input" min="260" max="640" step="5" value="460">
+        <div style="display:flex; justify-content:space-between; font-size:10px; color:var(--text-dim);">
+          <span>264 (Planshet)</span>
+          <span>395 (Redmi)</span>
+          <span>460 (iPhone Retina)</span>
+          <span>500+ (Ultra)</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. O'yinchi va Boshqaruv usuli -->
+    <div class="section-label">
+      2. O'yinchi Turi va Boshqaruv <span>Qadam 2/2</span>
+    </div>
+
+    <section class="glass-card form-group">
+      <div class="input-label">
+        Barmoqlar Soni (Claw)
+        <small id="clawLabel">5 Barmoq</small>
+      </div>
+      <div class="grid-4x1" id="clawSelector">
+        <div class="select-card" data-claw="2">
+          <span class="icon">👍</span>
+          <span class="title">2 Barmoq</span>
+        </div>
+        <div class="select-card" data-claw="3">
+          <span class="icon">🤟</span>
+          <span class="title">3 Barmoq</span>
+        </div>
+        <div class="select-card" data-claw="4">
+          <span class="icon">🖐️</span>
+          <span class="title">4 Barmoq</span>
+        </div>
+        <div class="select-card active" data-claw="5">
+          <span class="icon">⚡</span>
+          <span class="title">5 Barmoq</span>
+        </div>
+      </div>
+
+      <div class="input-label" style="margin-top: 4px;">
+        Igrok Turi (Playstyle)
+        <small id="playstyleLabel">Balanced / Universal</small>
+      </div>
+      <div class="grid-2x2" id="playstyleSelector">
+        <div class="select-card" data-style="rush">
+          <span class="icon">🔥</span>
+          <span class="title">Rush / Agressiv</span>
+          <span class="desc">Tez burilish, yaqin jang</span>
+        </div>
+        <div class="select-card active" data-style="balanced">
+          <span class="icon">⚖️</span>
+          <span class="title">Balanced / Universal</span>
+          <span class="desc">Barqaror nazorat & harakat</span>
+        </div>
+        <div class="select-card" data-style="sniper">
+          <span class="icon">🎯</span>
+          <span class="title">Sniper / Support</span>
+          <span class="desc">Aniq nishon, uzoq masofa</span>
+        </div>
+        <div class="select-card" data-style="jiggle">
+          <span class="icon">⚡</span>
+          <span class="title">Close-Range / Jiggle</span>
+          <span class="desc">Shiddatli 1v1 duel ustasi</span>
+        </div>
+      </div>
+
+      <div class="input-label" style="margin-top: 4px;">
+        Chustvitelnost Xarakteri
+        <small id="sensStyleLabel">O'rtacha / Optimal</small>
+      </div>
+      <div class="grid-3x1" id="sensStyleSelector">
+        <div class="select-card" data-sens="low">
+          <span class="title">🛡️ Past</span>
+          <span class="desc">Ultra-aniq sprey</span>
+        </div>
+        <div class="select-card active" data-sens="medium">
+          <span class="title">🎯 O'rtacha</span>
+          <span class="desc">Optimal balans</span>
+        </div>
+        <div class="select-card" data-sens="high">
+          <span class="title">⚡ Tezkor</span>
+          <span class="desc">Keskin burilish</span>
+        </div>
+      </div>
+
+      <div class="input-label" style="margin-top: 4px;">
+        Giroskop Holati
+        <small id="gyroLabel">Daim yoniq</small>
+      </div>
+      <div class="grid-3x1" id="gyroSelector">
+        <div class="select-card active" data-gyro="always">
+          <span class="title">Daim yoniq</span>
+          <span class="desc">Always ON</span>
+        </div>
+        <div class="select-card" data-gyro="scope">
+          <span class="title">Nishon yoniq</span>
+          <span class="desc">Scope ON</span>
+        </div>
+        <div class="select-card" data-gyro="off">
+          <span class="title">O'chiq</span>
+          <span class="desc">No Gyro</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- CALCULATION CTA BUTTON -->
+    <div class="cta-btn-wrap">
+      <button class="calc-btn" id="generateBtn" onclick="handleGenerateClick()">
+        <span>🚀 100% ANALIZ QILIB HISOBLASH</span>
+      </button>
+      <button class="dice-btn" id="rerollDiceBtn" onclick="rerollAll()" title="Berilgan oraliqda tasodifiy qayta tanlash">
+        🎲
+      </button>
+    </div>
+
+    <!-- ========================================================
+         2. ASOSIY NATIJALAR: ADVANCED CONTROLS (SIZ BERGAN 4 TA QAT'IY PARAMETR)
+         ======================================================== -->
+    <div class="section-label" id="resultsAnchor">
+      Boshqaruv Sozlamalari (Advanced Controls) <span>Natijalar</span>
+    </div>
+
+    <section class="results-box">
+      <div class="results-header">
+        <div>
+          <h3 style="color:#fff; font-size:15px; font-weight:800;">🎮 Sozlamalar → Boshqaruv → Kengaytirilgan boshqaruv</h3>
+          <p style="font-size:11px; color:var(--text-muted); margin-top:2px;">Settings → Controls → Advanced Controls</p>
+        </div>
+        <button class="copy-btn" onclick="copyControlsConfig()">
+          <span>📋 Nusxalash</span>
+        </button>
+      </div>
+
+      <!-- 4 Core Metrics Strictly in Boundaries -->
+      <div class="metrics-grid">
+        <!-- 1. TPP View (80 - 84) -->
+        <div class="metric-card">
+          <div class="metric-header">
+            <span class="metric-tag">TPP View</span>
+            <span class="metric-range">80 — 84</span>
+          </div>
+          <div class="metric-value-wrap">
+            <span class="metric-num" id="resTpp">83</span>
+          </div>
+          <div class="metric-bar-bg">
+            <div class="metric-bar-fill" id="barTpp" style="width: 75%;"></div>
+          </div>
+          <div class="metric-tip">Ko'rish burchagi (FOV). Dushmanlarni yaqin va aniq ko'rsatadi.</div>
+        </div>
+
+        <!-- 2. FPP View (92 - 98) -->
+        <div class="metric-card">
+          <div class="metric-header">
+            <span class="metric-tag">FPP View</span>
+            <span class="metric-range">92 — 98</span>
+          </div>
+          <div class="metric-value-wrap">
+            <span class="metric-num" id="resFpp">95</span>
+          </div>
+          <div class="metric-bar-bg">
+            <div class="metric-bar-fill" id="barFpp" style="width: 50%;"></div>
+          </div>
+          <div class="metric-tip">1-shaxs ko'rish burchagi. Binolar ichidagi jangda qulay.</div>
+        </div>
+
+        <!-- 3. Tilt Sensitivity (78% - 87%) -->
+        <div class="metric-card">
+          <div class="metric-header">
+            <span class="metric-tag">Tilt (Slitov)</span>
+            <span class="metric-range">78% — 87%</span>
+          </div>
+          <div class="metric-value-wrap">
+            <span class="metric-num" id="resTilt">84</span>
+            <span class="metric-unit">%</span>
+          </div>
+          <div class="metric-bar-bg">
+            <div class="metric-bar-fill" id="barTilt" style="width: 66%;"></div>
+          </div>
+          <div class="metric-tip">Sprint reaksiyasi. Joystik yugurish tezligini belgilaydi.</div>
+        </div>
+
+        <!-- 4. Joystick Size (125% - 180%) -->
+        <div class="metric-card">
+          <div class="metric-header">
+            <span class="metric-tag">Joystick Size</span>
+            <span class="metric-range">125% — 180%</span>
+          </div>
+          <div class="metric-value-wrap">
+            <span class="metric-num" id="resJoystick">145</span>
+            <span class="metric-unit">%</span>
+          </div>
+          <div class="metric-bar-bg">
+            <div class="metric-bar-fill" id="barJoystick" style="width: 36%;"></div>
+          </div>
+          <div class="metric-tip">Ekran o'lchami va 5-barmoq uchun ideal barqaror o'lcham.</div>
+        </div>
+      </div>
+
+      <!-- FOV Visualizer -->
+      <div class="fov-sim-wrap">
+        <div class="fov-box">
+          <div style="font-size:11px; font-weight:700; color:var(--text-muted); margin-bottom:4px;">
+            TPP FOV Simulyatsiyasi (<span id="fovTppLabel">83</span>)
+          </div>
+          <div class="fov-radar">
+            <div class="fov-cone" id="fovConeTpp"></div>
+          </div>
+        </div>
+        <div class="fov-box">
+          <div style="font-size:11px; font-weight:700; color:var(--text-muted); margin-bottom:4px;">
+            FPP FOV Simulyatsiyasi (<span id="fovFppLabel">95</span>)
+          </div>
+          <div class="fov-radar">
+            <div class="fov-cone" id="fovConeFpp" style="border-top-color: rgba(0, 229, 255, 0.45); border-left-width: 36px; border-right-width: 36px;"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- LIVE JOYSTICK SIMULATOR -->
+    <section class="joystick-demo-card">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+        <h4 style="font-size:13px; font-weight:800; color:#fff;">🕹️ Jonli Joystik Sinovi (<span id="arenaJoystickPct">145%</span>)</h4>
+        <span style="font-size: 11px; color: var(--accent-orange);">Barmog'ingiz bilan surib ko'ring</span>
+      </div>
+
+      <div class="demo-arena" id="joystickArena">
+        <div class="arena-grid-lines"></div>
+        <div class="v-joystick-base" id="vJoyBase" style="width: 120px; height: 120px;">
+          <div class="v-sprint-threshold" id="vSprintThreshold" style="width: 90px; height: 90px;"></div>
+          <div class="v-joystick-stick" id="vJoyStick"></div>
+        </div>
+        <div class="arena-hint" id="arenaStatus">Joystik markazda — Barmog'ingiz bilan bosing va suring</div>
+      </div>
+    </section>
+
+    <!-- ========================================================
+         3. SO'NGIDA: SEZUVCHANLIK (PUBG RASMIDAGI TARTIB BILAN)
+         QURILMA PROFILIGA MOSLASHGAN CHUST ENGINE
+         ======================================================== -->
+    <div class="section-label" id="sensAnchor">
+      Sozlamalar → Sezuvchanlik (Sensitivity) <span>Device-Tuned Chust</span>
+    </div>
+
+    <section class="pubg-sens-container">
+      
+      <!-- Live Device Profile Notification Banner -->
+      <div class="device-analysis-banner">
+        <div class="device-analysis-text" id="deviceAnalysisText">
+          🔍 Qurilma tahlili: <b>iPhone 14 Pro</b> (120Hz ProMotion | Retina 460 DPI). Giroskop va linza parametrlari 120 FPS kiber harakatiga 100% individual moslandi.
+        </div>
+      </div>
+
+      <!-- Top in-game subtabs -->
+      <div class="pubg-subnav-row">
+        <button class="pubg-subtab active" id="subtabLinza" onclick="switchSensCategory('linza')">LINZA (KAMERA)</button>
+        <button class="pubg-subtab" id="subtabGyro" onclick="switchSensCategory('giroskop')">GIROSKOP</button>
+      </div>
+
+      <!-- ================= LINZA BO'LIMI ================= -->
+      <div id="containerLinza" style="display:flex; flex-direction:column; gap:14px;">
+        
+        <!-- 1. KAMERA SEZUVCHANLIGI (PUBG 1-RASMDAGI NOMI) -->
+        <div class="sens-cat-header">
+          <h4>Kamera sezuvchanligi</h4>
+          <span style="font-size:10px; color:var(--text-muted);">Erkin burilish & nishon</span>
+        </div>
+
+        <div class="pubg-sens-row">
+          <div class="pubg-row-top">
+            <span class="pubg-scope-name">3-shaxs nishonsiz</span>
+            <div class="pubg-controls-wrap">
+              <button class="pubg-btn-step" onclick="stepVal('cam3p', -1)">-</button>
+              <span class="pubg-val-badge" id="val_cam3p">120%</span>
+              <button class="pubg-btn-step" onclick="stepVal('cam3p', 1)">+</button>
+            </div>
+          </div>
+          <div class="pubg-slider-track"><div class="pubg-slider-fill" id="track_cam3p" style="width:60%;"></div></div>
+        </div>
+
+        <div class="pubg-sens-row">
+          <div class="pubg-row-top">
+            <span class="pubg-scope-name">1-shaxs nishonsiz</span>
+            <div class="pubg-controls-wrap">
+              <button class="pubg-btn-step" onclick="stepVal('cam1p', -1)">-</button>
+              <span class="pubg-val-badge" id="val_cam1p">110%</span>
+              <button class="pubg-btn-step" onclick="stepVal('cam1p', 1)">+</button>
+            </div>
+          </div>
+          <div class="pubg-slider-track"><div class="pubg-slider-fill" id="track_cam1p" style="width:55%;"></div></div>
+        </div>
+
+        <div class="pubg-sens-row">
+          <div class="pubg-row-top">
+            <span class="pubg-scope-name">Qizil nuqta, Golografik, Temir nishon va Yonbosh nishon</span>
+            <div class="pubg-controls-wrap">
+              <button class="pubg-btn-step" onclick="stepVal('camRedDot', -1)">-</button>
+              <span class="pubg-val-badge" id="val_camRedDot">56%</span>
+              <button class="pubg-btn-step" onclick="stepVal('camRedDot', 1)">+</button>
+            </div>
+          </div>
+          <div class="pubg-slider-track"><div class="pubg-slider-fill" id="track_camRedDot" style="width:38%;"></div></div>
+        </div>
+
+        <div class="pubg-sens-row">
+          <div class="pubg-row-top">
+            <span class="pubg-scope-name">2x Nishon</span>
+            <div class="pubg-controls-wrap">
+              <button class="pubg-btn-step" onclick="stepVal('cam2x', -1)">-</button>
+              <span class="pubg-val-badge" id="val_cam2x">34%</span>
+              <button class="pubg-btn-step" onclick="stepVal('cam2x', 1)">+</button>
+            </div>
+          </div>
+          <div class="pubg-slider-track"><div class="pubg-slider-fill" id="track_cam2x" style="width:34%;"></div></div>
+        </div>
+
+        <div class="pubg-sens-row">
+          <div class="pubg-row-top">
+            <span class="pubg-scope-name">3x Nishon, Win94</span>
+            <div class="pubg-controls-wrap">
+              <button class="pubg-btn-step" onclick="stepVal('cam3x', -1)">-</button>
+              <span class="pubg-val-badge" id="val_cam3x">25%</span>
+              <button class="pubg-btn-step" onclick="stepVal('cam3x', 1)">+</button>
+            </div>
+          </div>
+          <div class="pubg-slider-track"><div class="pubg-slider-fill" id="track_cam3x" style="width:25%;"></div></div>
+        </div>
+
+        <div class="pubg-sens-row">
+          <div class="pubg-row-top">
+            <span class="pubg-scope-name">4x Nishon, VSS</span>
+            <div class="pubg-controls-wrap">
+              <button class="pubg-btn-step" onclick="stepVal('cam4x', -1)">-</button>
+              <span class="pubg-val-badge" id="val_cam4x">19%</span>
+              <button class="pubg-btn-step" onclick="stepVal('cam4x', 1)">+</button>
+            </div>
+          </div>
+          <div class="pubg-slider-track"><div class="pubg-slider-fill" id="track_cam4x" style="width:19%;"></div></div>
+        </div>
+
+        <div class="pubg-sens-row">
+          <div class="pubg-row-top">
+            <span class="pubg-scope-name">6x Nishon</span>
+            <div class="pubg-controls-wrap">
+              <button class="pubg-btn-step" onclick="stepVal('cam6x', -1)">-</button>
+              <span class="pubg-val-badge" id="val_cam6x">14%</span>
+              <button class="pubg-btn-step" onclick="stepVal('cam6x', 1)">+</button>
+            </div>
+          </div>
+          <div class="pubg-slider-track"><div class="pubg-slider-fill" id="track_cam6x" style="width:14%;"></div></div>
+        </div>
+
+        <div class="pubg-sens-row">
+          <div class="pubg-row-top">
+            <span class="pubg-scope-name">8x Nishon</span>
+            <div class="pubg-controls-wrap">
+              <button class="pubg-btn-step" onclick="stepVal('cam8x', -1)">-</button>
+              <span class="pubg-val-badge" id="val_cam8x">10%</span>
+              <button class="pubg-btn-step" onclick="stepVal('cam8x', 1)">+</button>
+            </div>
+          </div>
+          <div class="pubg-slider-track"><div class="pubg-slider-fill" id="track_cam8x" style="width:10%;"></div></div>
+        </div>
+
+        <!-- 2. KAMERA SEZUVCHANLIGI (ERKIN KO'RINISH) - (PUBG 2-RASMDAGI NOMI) -->
+        <div class="sens-cat-header" style="margin-top:10px;">
+          <h4>Kamera sezuvchanligi (erkin ko'rinish)</h4>
+          <span style="font-size:10px; color:var(--text-muted);">Ko'zcha ikonkasi</span>
+        </div>
+
+        <div class="pubg-sens-row">
+          <div class="pubg-row-top">
+            <span class="pubg-scope-name">3-shaxs (personaj, transport)</span>
+            <div class="pubg-controls-wrap">
+              <button class="pubg-btn-step" onclick="stepVal('free3p', -1)">-</button>
+              <span class="pubg-val-badge" id="val_free3p">125%</span>
+              <button class="pubg-btn-step" onclick="stepVal('free3p', 1)">+</button>
+            </div>
+          </div>
+          <div class="pubg-slider-track"><div class="pubg-slider-fill" id="track_free3p" style="width:62%;"></div></div>
+        </div>
+
+        <div class="pubg-sens-row">
+          <div class="pubg-row-top">
+            <span class="pubg-scope-name">Kamera (Parashutdan sakrash)</span>
+            <div class="pubg-controls-wrap">
+              <button class="pubg-btn-step" onclick="stepVal('freePara', -1)">-</button>
+              <span class="pubg-val-badge" id="val_freePara">125%</span>
+              <button class="pubg-btn-step" onclick="stepVal('freePara', 1)">+</button>
+            </div>
+          </div>
+          <div class="pubg-slider-track"><div class="pubg-slider-fill" id="track_freePara" style="width:62%;"></div></div>
+        </div>
+
+        <div class="pubg-sens-row">
+          <div class="pubg-row-top">
+            <span class="pubg-scope-name">1-shaxs (personaj)</span>
+            <div class="pubg-controls-wrap">
+              <button class="pubg-btn-step" onclick="stepVal('free1p', -1)">-</button>
+              <span class="pubg-val-badge" id="val_free1p">115%</span>
+              <button class="pubg-btn-step" onclick="stepVal('free1p', 1)">+</button>
+            </div>
+          </div>
+          <div class="pubg-slider-track"><div class="pubg-slider-fill" id="track_free1p" style="width:57%;"></div></div>
+        </div>
+
+      </div>
+
+      <!-- ================= GIROSKOP BO'LIMI ================= -->
+      <div id="containerGyro" style="display:none; flex-direction:column; gap:14px;">
+        
+        <!-- 3. GIROSKOP SEZUVCHANLIGI (PUBG 3 & 4-RASMDAGI NOMI) -->
+        <div class="sens-cat-header">
+          <h4>Giroskop sezuvchanligi</h4>
+          <span class="gyro-status-tag" id="gyroStatusTag">Daim yoniq</span>
+        </div>
+
+        <div class="pubg-sens-row">
+          <div class="pubg-row-top">
+            <span class="pubg-scope-name">3-shaxs nishonsiz</span>
+            <div class="pubg-controls-wrap">
+              <button class="pubg-btn-step" onclick="stepVal('gyro3p', -5)">-</button>
+              <span class="pubg-val-badge" id="val_gyro3p">360%</span>
+              <button class="pubg-btn-step" onclick="stepVal('gyro3p', 5)">+</button>
+            </div>
+          </div>
+          <div class="pubg-slider-track"><div class="pubg-slider-fill" id="track_gyro3p" style="width:90%;"></div></div>
+        </div>
+
+        <div class="pubg-sens-row">
+          <div class="pubg-row-top">
+            <span class="pubg-scope-name">1-shaxs nishonsiz</span>
+            <div class="pubg-controls-wrap">
+              <button class="pubg-btn-step" onclick="stepVal('gyro1p', -5)">-</button>
+              <span class="pubg-val-badge" id="val_gyro1p">350%</span>
+              <button class="pubg-btn-step" onclick="stepVal('gyro1p', 5)">+</button>
+            </div>
+          </div>
+          <div class="pubg-slider-track"><div class="pubg-slider-fill" id="track_gyro1p" style="width:87%;"></div></div>
+        </div>
+
+        <div class="pubg-sens-row">
+          <div class="pubg-row-top">
+            <span class="pubg-scope-name">Qizil nuqta, Golografik, Temir nishon va Yonbosh nishon</span>
+            <div class="pubg-controls-wrap">
+              <button class="pubg-btn-step" onclick="stepVal('gyroRedDot', -5)">-</button>
+              <span class="pubg-val-badge" id="val_gyroRedDot">340%</span>
+              <button class="pubg-btn-step" onclick="stepVal('gyroRedDot', 5)">+</button>
+            </div>
+          </div>
+          <div class="pubg-slider-track"><div class="pubg-slider-fill" id="track_gyroRedDot" style="width:85%;"></div></div>
+        </div>
+
+        <div class="pubg-sens-row">
+          <div class="pubg-row-top">
+            <span class="pubg-scope-name">2x Nishon</span>
+            <div class="pubg-controls-wrap">
+              <button class="pubg-btn-step" onclick="stepVal('gyro2x', -5)">-</button>
+              <span class="pubg-val-badge" id="val_gyro2x">310%</span>
+              <button class="pubg-btn-step" onclick="stepVal('gyro2x', 5)">+</button>
+            </div>
+          </div>
+          <div class="pubg-slider-track"><div class="pubg-slider-fill" id="track_gyro2x" style="width:77%;"></div></div>
+        </div>
+
+        <div class="pubg-sens-row">
+          <div class="pubg-row-top">
+            <span class="pubg-scope-name">3x Nishon, Win94</span>
+            <div class="pubg-controls-wrap">
+              <button class="pubg-btn-step" onclick="stepVal('gyro3x', -5)">-</button>
+              <span class="pubg-val-badge" id="val_gyro3x">260%</span>
+              <button class="pubg-btn-step" onclick="stepVal('gyro3x', 5)">+</button>
+            </div>
+          </div>
+          <div class="pubg-slider-track"><div class="pubg-slider-fill" id="track_gyro3x" style="width:65%;"></div></div>
+        </div>
+
+        <div class="pubg-sens-row">
+          <div class="pubg-row-top">
+            <span class="pubg-scope-name">4x Nishon, VSS</span>
+            <div class="pubg-controls-wrap">
+              <button class="pubg-btn-step" onclick="stepVal('gyro4x', -5)">-</button>
+              <span class="pubg-val-badge" id="val_gyro4x">215%</span>
+              <button class="pubg-btn-step" onclick="stepVal('gyro4x', 5)">+</button>
+            </div>
+          </div>
+          <div class="pubg-slider-track"><div class="pubg-slider-fill" id="track_gyro4x" style="width:53%;"></div></div>
+        </div>
+
+        <div class="pubg-sens-row">
+          <div class="pubg-row-top">
+            <span class="pubg-scope-name">6x Nishon</span>
+            <div class="pubg-controls-wrap">
+              <button class="pubg-btn-step" onclick="stepVal('gyro6x', -5)">-</button>
+              <span class="pubg-val-badge" id="val_gyro6x">185%</span>
+              <button class="pubg-btn-step" onclick="stepVal('gyro6x', 5)">+</button>
+            </div>
+          </div>
+          <div class="pubg-slider-track"><div class="pubg-slider-fill" id="track_gyro6x" style="width:46%;"></div></div>
+        </div>
+
+        <div class="pubg-sens-row">
+          <div class="pubg-row-top">
+            <span class="pubg-scope-name">8x Nishon</span>
+            <div class="pubg-controls-wrap">
+              <button class="pubg-btn-step" onclick="stepVal('gyro8x', -5)">-</button>
+              <span class="pubg-val-badge" id="val_gyro8x">65%</span>
+              <button class="pubg-btn-step" onclick="stepVal('gyro8x', 5)">+</button>
+            </div>
+          </div>
+          <div class="pubg-slider-track"><div class="pubg-slider-fill" id="track_gyro8x" style="width:16%;"></div></div>
+        </div>
+
+      </div>
+
+      <!-- Sens Code & Copy Bar -->
+      <div class="sens-code-container">
+        <div>
+          <div style="font-size:10px; color:var(--text-muted); text-transform:uppercase;">Bulut boshqaruvi kodi:</div>
+          <div class="sens-code-val" id="sensCodeVal">7238-8921-4412-9012-345</div>
+        </div>
+        <button class="copy-btn" onclick="copyAllSensValues()">
+          <span>📋 Barchasini nusxalash</span>
+        </button>
+      </div>
+
+    </section>
+
+  </div>
+
+  <!-- Modern Floating Navigation Bar with Epic Cyber Animations -->
+  <nav class="bottom-nav-bar">
+    <div class="nav-tab-item active" id="navItemControls" onclick="handleNavTabClick('controls')">
+      <span class="tab-icon" id="iconControls">🎮</span>
+      <span class="tab-label">Boshqaruv</span>
+    </div>
+
+    <div class="nav-center-wrapper">
+      <div class="nav-shockwave" id="navShockwave"></div>
+      <div class="nav-center-btn" id="mainNavDice" onclick="rerollWithEpicAnimation()" title="Qayta hisoblash / Tasodifiy yangilash">
+        🎲
+      </div>
+    </div>
+
+    <div class="nav-tab-item" id="navItemSens" onclick="handleNavTabClick('sens')">
+      <span class="tab-icon" id="iconSens">🎯</span>
+      <span class="tab-label">Sezuvchanlik</span>
+    </div>
+  </nav>
+
+  <script>
+    // DEVICE PROFILES DATABASE WITH REAL HARDWARE CALIBRATION
+    const DEVICE_DATABASE = {
+      'iPhone 14 Pro': {
+        screenSize: 6.1,
+        touchRate: 240,
+        osType: 'ios',
+        baseCamMultiplier: 1.05,
+        baseGyroMultiplier: 1.15,
+        desc: '6.1" OLED 120Hz ProMotion | Touch 240Hz | A16 Ultra Giroskop'
+      },
+      'iPhone 15 / 16 Pro Max': {
+        screenSize: 6.8,
+        touchRate: 240,
+        osType: 'ios',
+        baseCamMultiplier: 1.10,
+        baseGyroMultiplier: 1.18,
+        desc: 'Katta ekran 6.7-6.9" 120Hz | Keng barmog‘ yoyi | Tezkor kamera'
+      },
+      'iPhone 13 / 12 / 11': {
+        screenSize: 6.1,
+        touchRate: 120,
+        osType: 'ios',
+        baseCamMultiplier: 1.18,
+        baseGyroMultiplier: 0.98,
+        desc: '60Hz displey | 60 FPS da kechikishni yengish uchun oshirilgan kamera'
+      },
+      'Poco X6 Pro / F5 / F6': {
+        screenSize: 6.67,
+        touchRate: 480,
+        osType: 'android',
+        baseCamMultiplier: 0.95,
+        baseGyroMultiplier: 1.05,
+        desc: '480Hz Ultra Sensorli ekran | Android tebranishni barqarorlashtirish'
+      },
+      'Samsung S23/S24/S25 Ultra': {
+        screenSize: 6.8,
+        touchRate: 240,
+        osType: 'android',
+        baseCamMultiplier: 1.12,
+        baseGyroMultiplier: 1.02,
+        desc: '6.8" Ulkan displey | 500 DPI | Bosh barmoq masofasi uchun kengaytirilgan'
+      },
+      'Redmi Note 12/13 Pro': {
+        screenSize: 6.67,
+        touchRate: 240,
+        osType: 'android',
+        baseCamMultiplier: 1.02,
+        baseGyroMultiplier: 0.96,
+        desc: '395 DPI | 120Hz AMOLED | Balanslangan silliq sprey'
+      },
+      'Realme GT / OnePlus': {
+        screenSize: 6.74,
+        touchRate: 360,
+        osType: 'android',
+        baseCamMultiplier: 1.04,
+        baseGyroMultiplier: 1.08,
+        desc: 'Tezkor javob qaytarish | Kiber sport rejimiga moslangan'
+      },
+      'iPad Pro / Mini': {
+        screenSize: 10.5,
+        touchRate: 240,
+        osType: 'tablet',
+        baseCamMultiplier: 0.82,
+        baseGyroMultiplier: 0.72,
+        desc: 'Katta planshet fizikasi | Og‘ir planshet silkinishini to‘xtatuvchi parametrlar'
+      }
+    };
+
+    // State management
+    const state = {
+      phone: 'iPhone 14 Pro',
+      hz: 120,
+      dpi: 460,
+      claw: 5,
+      playstyle: 'balanced',
+      sens: 'medium',
+      gyro: 'always',
+      // Strict boundaries requested:
+      // TPP: 80 - 84
+      // FPP: 92 - 98
+      // Slitov / Tilt: 78% - 87%
+      // Joystick: 125% - 180%
+      results: {
+        tpp: 83,
+        fpp: 95,
+        tilt: 84,
+        joystick: 145
+      },
+      // PUBG exact settings
+      sensVals: {
+        cam3p: 120,
+        cam1p: 110,
+        camRedDot: 56,
+        cam2x: 34,
+        cam3x: 25,
+        cam4x: 19,
+        cam6x: 14,
+        cam8x: 10,
+        free3p: 125,
+        freePara: 125,
+        free1p: 115,
+        gyro3p: 360,
+        gyro1p: 350,
+        gyroRedDot: 340,
+        gyro2x: 310,
+        gyro3x: 260,
+        gyro4x: 215,
+        gyro6x: 185,
+        gyro8x: 65
+      }
+    };
+
+    function randomBetween(min, max) {
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    function switchSensCategory(cat) {
+      const btnLinza = document.getElementById('subtabLinza');
+      const btnGyro = document.getElementById('subtabGyro');
+      const boxLinza = document.getElementById('containerLinza');
+      const boxGyro = document.getElementById('containerGyro');
+
+      if (cat === 'linza') {
+        btnLinza.classList.add('active');
+        btnGyro.classList.remove('active');
+        boxLinza.style.display = 'flex';
+        boxGyro.style.display = 'none';
+      } else {
+        btnLinza.classList.remove('active');
+        btnGyro.classList.add('active');
+        boxLinza.style.display = 'none';
+        boxGyro.style.display = 'flex';
+      }
+      triggerHaptic();
+    }
+
+    // CORE DEVICE-TUNED ENGINE
+    function calculateAll(isReroll = false) {
+      // 1. Controls Calculation (Strict boundaries)
+      let calculatedTpp = 82;
+      let calculatedFpp = 95;
+      let calculatedTilt = 82;
+      let calculatedJoystick = 148;
+
+      if (state.playstyle === 'rush') {
+        calculatedTpp += 1;
+        calculatedFpp += 2;
+        calculatedTilt += 3;
+        calculatedJoystick -= 8;
+      } else if (state.playstyle === 'jiggle') {
+        calculatedTpp += 1;
+        calculatedFpp += 1;
+        calculatedTilt += 4;
+        calculatedJoystick -= 12;
+      } else if (state.playstyle === 'sniper') {
+        calculatedTpp -= 2;
+        calculatedFpp -= 2;
+        calculatedTilt -= 2;
+        calculatedJoystick += 12;
+      } else {
+        calculatedTpp = 82;
+        calculatedFpp = 95;
+        calculatedTilt = 83;
+        calculatedJoystick = 145;
+      }
+
+      if (state.claw === 5) {
+        calculatedJoystick -= 5;
+        calculatedTilt += 2;
+      } else if (state.claw === 2) {
+        calculatedJoystick += 15;
+        calculatedTilt -= 2;
+      }
+
+      if (state.hz >= 120) calculatedTilt += 1;
+      if (state.dpi > 450) calculatedJoystick += 2;
+
+      const tppJitter = isReroll ? randomBetween(-1, 1) : randomBetween(0, 1);
+      const fppJitter = isReroll ? randomBetween(-2, 2) : randomBetween(-1, 1);
+      const tiltJitter = isReroll ? randomBetween(-2, 2) : randomBetween(-1, 1);
+      const joyJitter = isReroll ? randomBetween(-8, 8) : randomBetween(-4, 4);
+
+      state.results.tpp = Math.max(80, Math.min(84, Math.round(calculatedTpp + tppJitter)));
+      state.results.fpp = Math.max(92, Math.min(98, Math.round(calculatedFpp + fppJitter)));
+      state.results.tilt = Math.max(78, Math.min(87, Math.round(calculatedTilt + tiltJitter)));
+      state.results.joystick = Math.max(125, Math.min(180, Math.round(calculatedJoystick + joyJitter)));
+
+      // 2. DEVICE-TUNED SENSITIVITY CALCULATION
+      const deviceProfile = DEVICE_DATABASE[state.phone] || {
+        screenSize: 6.5,
+        touchRate: 240,
+        osType: 'android',
+        baseCamMultiplier: 1.0,
+        baseGyroMultiplier: 1.0,
+        desc: `${state.phone} (${state.hz}Hz | ${state.dpi} DPI) uchun maxsus hisoblandi`
+      };
+
+      // Factors:
+      // DPI factor: higher DPI translates to faster swipe per physical mm, so in-game slider needs to decrease slightly to maintain precision
+      const dpiFactor = 430 / state.dpi; 
+      
+      // Hz factor: 120Hz/144Hz screen allows quicker visual feedback
+      const hzFactor = state.hz >= 120 ? 1.06 : (state.hz === 90 ? 1.0 : 0.94);
+      
+      // Playstyle factor
+      const playFactor = state.playstyle === 'rush' ? 1.08 : (state.playstyle === 'sniper' ? 0.91 : 1.0);
+      
+      // Sens character (Past, O'rtacha, Tezkor)
+      const userSensFactor = state.sens === 'high' ? 1.15 : (state.sens === 'low' ? 0.88 : 1.0);
+
+      // Claw factor: 2-finger thumb players need higher camera ADS, 5-finger players rely on gyroscope
+      const clawCamBoost = state.claw === 2 ? 1.22 : 1.0;
+      const clawGyroBoost = state.claw >= 4 ? 1.08 : 0.95;
+
+      const totalCamMult = deviceProfile.baseCamMultiplier * dpiFactor * hzFactor * playFactor * userSensFactor * clawCamBoost;
+      const totalGyroMult = deviceProfile.baseGyroMultiplier * hzFactor * playFactor * userSensFactor * clawGyroBoost;
+
+      // Noise jitter for fresh rerolls
+      const rJitter = (range) => isReroll ? randomBetween(-range, range) : 0;
+
+      // Apply tailored values
+      state.sensVals.cam3p = Math.round(112 * totalCamMult) + rJitter(3);
+      state.sensVals.cam1p = Math.round(102 * totalCamMult) + rJitter(3);
+      state.sensVals.camRedDot = Math.round(52 * totalCamMult) + rJitter(2);
+      state.sensVals.cam2x = Math.round(33 * totalCamMult) + rJitter(2);
+      state.sensVals.cam3x = Math.round(24 * totalCamMult) + rJitter(1);
+      state.sensVals.cam4x = Math.round(18 * totalCamMult) + rJitter(1);
+      state.sensVals.cam6x = Math.round(13 * totalCamMult) + rJitter(1);
+      state.sensVals.cam8x = Math.round(9 * totalCamMult) + rJitter(1);
+
+      state.sensVals.free3p = Math.round(120 * totalCamMult) + rJitter(3);
+      state.sensVals.freePara = Math.round(120 * totalCamMult) + rJitter(3);
+      state.sensVals.free1p = Math.round(110 * totalCamMult) + rJitter(3);
+
+      if (state.gyro === 'off') {
+        state.sensVals.gyro3p = 0;
+        state.sensVals.gyro1p = 0;
+        state.sensVals.gyroRedDot = 0;
+        state.sensVals.gyro2x = 0;
+        state.sensVals.gyro3x = 0;
+        state.sensVals.gyro4x = 0;
+        state.sensVals.gyro6x = 0;
+        state.sensVals.gyro8x = 0;
+      } else {
+        // Gyroscope calibrated to phone sensor
+        state.sensVals.gyro3p = Math.min(400, Math.max(150, Math.round(330 * totalGyroMult) + rJitter(6)));
+        state.sensVals.gyro1p = Math.min(400, Math.max(150, Math.round(325 * totalGyroMult) + rJitter(6)));
+        state.sensVals.gyroRedDot = Math.min(400, Math.max(150, Math.round(315 * totalGyroMult) + rJitter(5)));
+        state.sensVals.gyro2x = Math.min(400, Math.max(120, Math.round(295 * totalGyroMult) + rJitter(5)));
+        state.sensVals.gyro3x = Math.min(350, Math.max(100, Math.round(245 * totalGyroMult) + rJitter(4)));
+        state.sensVals.gyro4x = Math.min(300, Math.max(80, Math.round(200 * totalGyroMult) + rJitter(4)));
+        state.sensVals.gyro6x = Math.min(250, Math.max(50, Math.round(175 * totalGyroMult) + rJitter(3)));
+        state.sensVals.gyro8x = Math.min(150, Math.max(30, Math.round(62 * totalGyroMult) + rJitter(2)));
+      }
+
+      updateUI(deviceProfile.desc);
+    }
+
+    function updateUI(deviceDesc) {
+      document.getElementById('resTpp').textContent = state.results.tpp;
+      document.getElementById('resFpp').textContent = state.results.fpp;
+      document.getElementById('resTilt').textContent = state.results.tilt;
+      document.getElementById('resJoystick').textContent = state.results.joystick;
+
+      const tppPct = ((state.results.tpp - 80) / 4) * 100;
+      document.getElementById('barTpp').style.width = Math.max(15, Math.min(100, tppPct)) + '%';
+
+      const fppPct = ((state.results.fpp - 92) / 6) * 100;
+      document.getElementById('barFpp').style.width = Math.max(15, Math.min(100, fppPct)) + '%';
+
+      const tiltPct = ((state.results.tilt - 78) / 9) * 100;
+      document.getElementById('barTilt').style.width = Math.max(15, Math.min(100, tiltPct)) + '%';
+
+      const joyPct = ((state.results.joystick - 125) / 55) * 100;
+      document.getElementById('barJoystick').style.width = Math.max(15, Math.min(100, joyPct)) + '%';
+
+      document.getElementById('specDevicePill').textContent = '📱 ' + state.phone;
+      document.getElementById('specHzPill').textContent = '⚡ ' + state.hz + ' Hz';
+      document.getElementById('specClawPill').textContent = '🖐️ ' + state.claw + ' Barmoq';
+      document.getElementById('specDpiPill').textContent = '🎯 ' + state.dpi + ' DPI';
+
+      // Virtual Joystick scale
+      const vJoyBase = document.getElementById('vJoyBase');
+      const vSprintThreshold = document.getElementById('vSprintThreshold');
+      const basePx = 95 + ((state.results.joystick - 125) / 55) * 50;
+      vJoyBase.style.width = basePx + 'px';
+      vJoyBase.style.height = basePx + 'px';
+
+      const thresholdRatio = state.results.tilt / 100;
+      const sprintPx = basePx * thresholdRatio * 0.9;
+      vSprintThreshold.style.width = sprintPx + 'px';
+      vSprintThreshold.style.height = sprintPx + 'px';
+
+      document.getElementById('arenaJoystickPct').textContent = state.results.joystick + '% (Tilt: ' + state.results.tilt + '%)';
+
+      // FOV Radar
+      document.getElementById('fovTppLabel').textContent = state.results.tpp;
+      document.getElementById('fovFppLabel').textContent = state.results.fpp;
+      const coneTppWidth = 24 + (state.results.tpp - 80) * 4;
+      document.getElementById('fovConeTpp').style.borderLeftWidth = coneTppWidth + 'px';
+      document.getElementById('fovConeTpp').style.borderRightWidth = coneTppWidth + 'px';
+
+      const coneFppWidth = 32 + (state.results.fpp - 92) * 3;
+      document.getElementById('fovConeFpp').style.borderLeftWidth = coneFppWidth + 'px';
+      document.getElementById('fovConeFpp').style.borderRightWidth = coneFppWidth + 'px';
+
+      // Device Analysis Banner Text
+      if (deviceDesc) {
+        document.getElementById('deviceAnalysisText').innerHTML = 
+          `🔍 Tahlil: <b>${state.phone}</b> (${state.hz}Hz | ${state.dpi} DPI). ` + deviceDesc;
+      }
+
+      // Update Sens Rows
+      for (const [key, val] of Object.entries(state.sensVals)) {
+        const numEl = document.getElementById('val_' + key);
+        const trackEl = document.getElementById('track_' + key);
+        if (numEl) numEl.textContent = val + '%';
+        if (trackEl) {
+          const maxScale = key.startsWith('gyro') ? 400 : 200;
+          trackEl.style.width = Math.min(100, Math.max(5, (val / maxScale) * 100)) + '%';
+        }
+      }
+
+      const gyroTag = document.getElementById('gyroStatusTag');
+      gyroTag.textContent = state.gyro === 'always' ? 'Daim yoniq' : (state.gyro === 'scope' ? 'Nishon yoniq' : 'O\'chiq');
+
+      // Random authentic code
+      const p1 = randomBetween(7100, 7399);
+      const p2 = randomBetween(8200, 8999);
+      const p3 = randomBetween(4000, 4999);
+      const p4 = randomBetween(9000, 9999);
+      const p5 = randomBetween(100, 999);
+      document.getElementById('sensCodeVal').textContent = `${p1}-${p2}-${p3}-${p4}-${p5}`;
+    }
+
+    function stepVal(key, delta) {
+      if (state.sensVals[key] !== undefined) {
+        state.sensVals[key] = Math.max(0, state.sensVals[key] + delta);
+        updateUI();
+        playStepSound(delta > 0);
+        triggerHaptic();
+      }
+    }
+
+    // ==========================================
+    // AUDIO ENGINE (SFX & BACKGROUND MUSIC)
+    // ==========================================
+
+    // TACTILE TAP / CLICK SOUND (Sci-Fi Cyber Blip)
+    function playTapSound() {
+      try {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContext) return;
+        const ctx = new AudioContext();
+        const now = ctx.currentTime;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(650, now);
+        osc.frequency.exponentialRampToValueAtTime(880, now + 0.04);
+        gain.gain.setValueAtTime(0.08, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.04);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.05);
+      } catch (e) {}
+    }
+
+    // STEPPER SOUND (+ / -)
+    function playStepSound(isUp) {
+      try {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContext) return;
+        const ctx = new AudioContext();
+        const now = ctx.currentTime;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'triangle';
+        const startFreq = isUp ? 520 : 420;
+        const endFreq = isUp ? 680 : 340;
+        osc.frequency.setValueAtTime(startFreq, now);
+        osc.frequency.exponentialRampToValueAtTime(endFreq, now + 0.05);
+        gain.gain.setValueAtTime(0.09, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.06);
+      } catch (e) {}
+    }
+
+    // SUCCESS / LEVEL-UP CHIME (Copying Settings)
+    function playSuccessChime() {
+      try {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContext) return;
+        const ctx = new AudioContext();
+        const now = ctx.currentTime;
+        [523.25, 659.25, 783.99, 1046.50].forEach((freq, idx) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, now + idx * 0.06);
+          gain.gain.setValueAtTime(0.09, now + idx * 0.06);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.06 + 0.18);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now + idx * 0.06);
+          osc.stop(now + idx * 0.06 + 0.2);
+        });
+      } catch (e) {}
+    }
+
+    // ==========================================
+    // ALAN WALKER: ON MY WAY (PUBG THEME) AUDIO ENGINE
+    // ==========================================
+    let isBgmPlaying = false;
+    let bgmAudio = null;
+
+    function getAudioElement() {
+      if (!bgmAudio) {
+        bgmAudio = document.getElementById('bgmAudio');
+        if (bgmAudio) {
+          bgmAudio.volume = 0.25;
+          bgmAudio.addEventListener('timeupdate', updateAudioProgress);
+          bgmAudio.addEventListener('play', () => {
+            isBgmPlaying = true;
+            updateBgmUI(true);
+          });
+          bgmAudio.addEventListener('pause', () => {
+            isBgmPlaying = false;
+            updateBgmUI(false);
+          });
+          bgmAudio.addEventListener('ended', () => {
+            if (bgmAudio.loop) {
+              bgmAudio.play();
+            } else {
+              isBgmPlaying = false;
+              updateBgmUI(false);
+            }
+          });
+        }
+      }
+      return bgmAudio;
+    }
+
+    function formatTime(sec) {
+      const s = Math.max(0, Math.floor(sec));
+      const m = Math.floor(s / 60);
+      const remS = s % 60;
+      return `${m < 10 ? '0' : ''}${m}:${remS < 10 ? '0' : ''}${remS}`;
+    }
+
+    function updateAudioProgress() {
+      const audio = getAudioElement();
+      if (!audio) return;
+      const cur = audio.currentTime || 0;
+      const dur = audio.duration || 193;
+      const pct = dur > 0 ? (cur / dur) * 100 : 0;
+      const fill = document.getElementById('audioProgressFill');
+      if (fill) fill.style.width = pct + '%';
+      const curDisplay = document.getElementById('audioCurrentTime');
+      if (curDisplay) curDisplay.textContent = formatTime(cur);
+      const durDisplay = document.getElementById('audioDuration');
+      if (durDisplay && audio.duration) durDisplay.textContent = formatTime(dur);
+    }
+
+    function seekAudio(e) {
+      const bar = document.getElementById('audioProgressBar');
+      const audio = getAudioElement();
+      if (!bar || !audio) return;
+      const rect = bar.getBoundingClientRect();
+      const clickX = e.clientX - rect.left;
+      const ratio = Math.max(0, Math.min(1, clickX / rect.width));
+      const dur = audio.duration || 193;
+      audio.currentTime = ratio * dur;
+    }
+
+    function changeVolume(val) {
+      const audio = getAudioElement();
+      const pct = parseInt(val);
+      if (audio) audio.volume = pct / 100;
+      const disp = document.getElementById('volumePctDisplay');
+      if (disp) disp.textContent = pct + '%';
+    }
+
+    function triggerLocalAudioPicker() {
+      playTapSound();
+      const input = document.getElementById('localAudioInput');
+      if (input) input.click();
+    }
+
+    function handleLocalAudio(input) {
+      if (input.files && input.files[0]) {
+        const file = input.files[0];
+        const blobUrl = URL.createObjectURL(file);
+        const audio = getAudioElement();
+        if (audio) {
+          audio.src = blobUrl;
+          audio.volume = 0.25;
+          audio.play().then(() => {
+            isBgmPlaying = true;
+            updateBgmUI(true);
+            const status = document.getElementById('musicTrackStatusText');
+            if (status) status.textContent = '🎵 ' + file.name + ' (Offline)';
+            showToast(`🎵 ${file.name} ijro etilmoqda!`);
+          }).catch(err => {
+            console.log('Audio error:', err);
+            showToast('⚠️ Faylni ijro etishda xatolik yuz berdi');
+          });
+        }
+        triggerHaptic();
+      }
+    }
+
+    function toggleBgm() {
+      playTapSound();
+      const audio = getAudioElement();
+      if (!audio) return;
+
+      if (isBgmPlaying) {
+        audio.pause();
+        isBgmPlaying = false;
+        updateBgmUI(false);
+        showToast('🔇 Musiqa to\'xtatildi');
+      } else {
+        audio.play().then(() => {
+          isBgmPlaying = true;
+          updateBgmUI(true);
+          showToast('🎵 Alan Walker — On My Way yangramoqda');
+        }).catch(err => {
+          console.log('Audio autoplay block:', err);
+          showToast('💡 "O\'zingizdagi MP3 faylni tanlash" tugmasini bosing!');
+        });
+      }
+      triggerHaptic();
+    }
+
+    function updateBgmUI(playing) {
+      const btn = document.getElementById('musicToggleBtn');
+      const icon = document.getElementById('musicMuteIcon');
+      const label = document.getElementById('musicLabelText');
+      const mainCard = document.getElementById('mainMusicCard');
+      const heroPlayIcon = document.getElementById('heroPlayIcon');
+      const heroPlayText = document.getElementById('heroPlayText');
+      const trackStatus = document.getElementById('musicTrackStatusText');
+
+      if (btn) {
+        if (playing) {
+          btn.classList.remove('muted');
+          if (icon) icon.textContent = '🔊';
+          if (label) label.textContent = 'ON MY WAY';
+        } else {
+          btn.classList.add('muted');
+          if (icon) icon.textContent = '🔇';
+          if (label) label.textContent = 'O\'CHIQ';
+        }
+      }
+
+      if (mainCard) {
+        mainCard.classList.toggle('playing', playing);
+      }
+      if (heroPlayIcon) {
+        heroPlayIcon.textContent = playing ? '⏸️' : '▶️';
+      }
+      if (heroPlayText) {
+        heroPlayText.textContent = playing ? 'To\'xtatish' : 'Musiqani tinglash';
+      }
+      if (trackStatus) {
+        trackStatus.textContent = playing ? '🎵 Yangramoqda • Alan Walker: On My Way' : 'PUBG Mobile Rasmiy Saundtreki • Fon Musiqasi';
+      }
+    }
+
+    // Auto-start music on first user touch/click anywhere
+    let userInteracted = false;
+    function handleFirstInteraction() {
+      if (!userInteracted) {
+        userInteracted = true;
+        const audio = getAudioElement();
+        if (audio) {
+          audio.volume = 0.25;
+          audio.play().catch(() => {});
+        }
+      }
+    }
+    window.addEventListener('click', handleFirstInteraction, { once: true });
+    window.addEventListener('touchstart', handleFirstInteraction, { once: true });
+
+    // AUDIO FX (Web Audio API Synthesizer - Zero External Files)
+    function playCyberRollSound() {
+      try {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContext) return;
+        const ctx = new AudioContext();
+        const now = ctx.currentTime;
+        // Mechanical Cyber Clicks & Rattle
+        for (let i = 0; i < 5; i++) {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = i % 2 === 0 ? 'triangle' : 'sine';
+          osc.frequency.setValueAtTime(320 + i * 160, now + i * 0.05);
+          gain.gain.setValueAtTime(0.09, now + i * 0.05);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.05 + 0.04);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now + i * 0.05);
+          osc.stop(now + i * 0.05 + 0.05);
+        }
+      } catch (e) {}
+    }
+
+    // SPARKLE BURST ANIMATION
+    function createSparkleBurst(originEl) {
+      if (!originEl) return;
+      const rect = originEl.getBoundingClientRect();
+      const centerX = rect.left + rect.width / 2;
+      const centerY = rect.top + rect.height / 2;
+
+      for (let i = 0; i < 10; i++) {
+        const spark = document.createElement('div');
+        spark.style.position = 'fixed';
+        spark.style.left = centerX + 'px';
+        spark.style.top = centerY + 'px';
+        spark.style.width = '5px';
+        spark.style.height = '5px';
+        spark.style.borderRadius = '50%';
+        spark.style.backgroundColor = i % 2 === 0 ? '#ff7b00' : '#ffc107';
+        spark.style.boxShadow = '0 0 10px #ff7b00';
+        spark.style.pointerEvents = 'none';
+        spark.style.zIndex = '9999';
+        spark.style.transition = 'all 0.5s cubic-bezier(0.1, 0.8, 0.3, 1)';
+        document.body.appendChild(spark);
+
+        const angle = (i / 10) * Math.PI * 2;
+        const velocity = 35 + Math.random() * 30;
+        const targetX = Math.cos(angle) * velocity;
+        const targetY = Math.sin(angle) * velocity - 15;
+
+        requestAnimationFrame(() => {
+          spark.style.transform = `translate(${targetX}px, ${targetY}px) scale(0)`;
+          spark.style.opacity = '0';
+        });
+
+        setTimeout(() => spark.remove(), 550);
+      }
+    }
+
+    // SLOT MACHINE / COUNTER NUMBER SHUFFLING
+    function animateSlotMachine(onFinish) {
+      const metricNums = [
+        document.getElementById('resTpp'),
+        document.getElementById('resFpp'),
+        document.getElementById('resTilt'),
+        document.getElementById('resJoystick')
+      ];
+
+      metricNums.forEach(el => el && el.classList.add('number-rolling'));
+
+      let iterations = 0;
+      const maxIterations = 8;
+      const shuffleTimer = setInterval(() => {
+        if (metricNums[0]) metricNums[0].textContent = randomBetween(80, 84);
+        if (metricNums[1]) metricNums[1].textContent = randomBetween(92, 98);
+        if (metricNums[2]) metricNums[2].textContent = randomBetween(78, 87);
+        if (metricNums[3]) metricNums[3].textContent = randomBetween(125, 180);
+
+        iterations++;
+        if (iterations >= maxIterations) {
+          clearInterval(shuffleTimer);
+          metricNums.forEach(el => el && el.classList.remove('number-rolling'));
+          if (onFinish) onFinish();
+        }
+      }, 45);
+    }
+
+    // NAV TAB CLICKS WITH BOUNCE & WIGGLE
+    function handleNavTabClick(tab) {
+      const itemControls = document.getElementById('navItemControls');
+      const itemSens = document.getElementById('navItemSens');
+      const iconControls = document.getElementById('iconControls');
+      const iconSens = document.getElementById('iconSens');
+
+      if (tab === 'controls') {
+        itemControls.classList.add('active');
+        itemSens.classList.remove('active');
+        iconControls.classList.add('icon-wiggle');
+        setTimeout(() => iconControls.classList.remove('icon-wiggle'), 500);
+        scrollToId('resultsAnchor');
+      } else {
+        itemSens.classList.add('active');
+        itemControls.classList.remove('active');
+        iconSens.classList.add('icon-spin');
+        setTimeout(() => iconSens.classList.remove('icon-spin'), 550);
+        scrollToId('sensAnchor');
+      }
+      triggerHaptic();
+    }
+
+    // EPIC REROLL WITH ALL ANIMATIONS (Shockwave, 3D Tumble, Slot Counter, Sparks)
+    function rerollWithEpicAnimation() {
+      const diceBtn = document.getElementById('mainNavDice');
+      const topDice = document.getElementById('rerollDiceBtn');
+      const shockwave = document.getElementById('navShockwave');
+
+      // 1. 3D Tumbling Physics
+      if (diceBtn) {
+        diceBtn.classList.remove('rolling');
+        void diceBtn.offsetWidth;
+        diceBtn.classList.add('rolling');
+        setTimeout(() => diceBtn.classList.remove('rolling'), 650);
+      }
+      if (topDice) {
+        topDice.style.transform = 'rotate(360deg) scale(0.9)';
+        setTimeout(() => topDice.style.transform = '', 350);
+      }
+
+      // 2. Shockwave Burst
+      if (shockwave) {
+        shockwave.classList.remove('burst');
+        void shockwave.offsetWidth;
+        shockwave.classList.add('burst');
+      }
+
+      // 3. Audio & Sparks & Haptic
+      playCyberRollSound();
+      createSparkleBurst(diceBtn || topDice);
+      if (navigator.vibrate) navigator.vibrate([25, 35, 45]);
+
+      // 4. Slot Machine Number Shuffling
+      animateSlotMachine(() => {
+        calculateAll(true);
+        showToast(`🎲 ${state.phone} uchun yangi sezuvchanlik hisoblandi!`);
+      });
+    }
+
+    // Generate Button Click with Audio & Visual Burst
+    function handleGenerateClick() {
+      playCyberRollSound();
+      const btn = document.getElementById('generateBtn');
+      createSparkleBurst(btn);
+      triggerHaptic();
+      calculateAll(false);
+      showToast(`🚀 ${state.phone} uchun 100% tahlil qilindi!`);
+      scrollToId('resultsAnchor');
+    }
+
+    // Legacy fallback
+    function rerollAll() {
+      rerollWithEpicAnimation();
+    }
+
+    function copyControlsConfig() {
+      const txt = 
+`PUBG MOBILE ADVANCED CONTROLS:
+Qurilma: ${state.phone} (${state.hz}Hz | ${state.dpi} DPI)
+O'yinchi uslubi: ${state.playstyle.toUpperCase()} (${state.claw} Barmoq)
+
+[Sozlamalar → Boshqaruv → Kengaytirilgan boshqaruv]
+TPP View: ${state.results.tpp}
+FPP View: ${state.results.fpp}
+Tilt Sensitivity (Slitov): ${state.results.tilt}%
+Joystick Size: ${state.results.joystick}%`;
+
+      copyToClipboard(txt, '🎮 Boshqaruv sozlamalari nusxalandi!');
+    }
+
+    function copyAllSensValues() {
+      const code = document.getElementById('sensCodeVal').textContent;
+      const txt = 
+`PUBG MOBILE INDIVIDUAL SEZUVCHANLIK:
+Qurilma: ${state.phone} (${state.hz}Hz | ${state.dpi} DPI)
+Bulut boshqaruvi kodi: ${code}
+
+[Kamera sezuvchanligi]
+3-shaxs nishonsiz: ${state.sensVals.cam3p}%
+1-shaxs nishonsiz: ${state.sensVals.cam1p}%
+Qizil nuqta, Golografik: ${state.sensVals.camRedDot}%
+2x Nishon: ${state.sensVals.cam2x}%
+3x Nishon, Win94: ${state.sensVals.cam3x}%
+4x Nishon, VSS: ${state.sensVals.cam4x}%
+6x Nishon: ${state.sensVals.cam6x}%
+8x Nishon: ${state.sensVals.cam8x}%
+
+[Kamera sezuvchanligi (erkin ko'rinish)]
+3-shaxs (personaj, transport): ${state.sensVals.free3p}%
+Kamera (Parashutdan sakrash): ${state.sensVals.freePara}%
+1-shaxs (personaj): ${state.sensVals.free1p}%
+
+[Giroskop sezuvchanligi]
+Holati: ${state.gyro === 'always' ? 'Daim yoniq' : (state.gyro === 'scope' ? 'Nishon yoniq' : 'O\'chiq')}
+3-shaxs nishonsiz: ${state.sensVals.gyro3p}%
+1-shaxs nishonsiz: ${state.sensVals.gyro1p}%
+Qizil nuqta: ${state.sensVals.gyroRedDot}%
+2x Nishon: ${state.sensVals.gyro2x}%
+3x Nishon, Win94: ${state.sensVals.gyro3x}%
+4x Nishon, VSS: ${state.sensVals.gyro4x}%
+6x Nishon: ${state.sensVals.gyro6x}%
+8x Nishon: ${state.sensVals.gyro8x}%`;
+
+      copyToClipboard(txt, '📋 Barcha sozlamalar va Sezuvchanlik nusxalandi!');
+    }
+
+    function copyToClipboard(text, msg) {
+      playSuccessChime();
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(text).then(() => {
+          showToast(msg);
+          triggerHaptic();
+        });
+      } else {
+        showToast(msg);
+      }
+    }
+
+    function scrollToId(id) {
+      const el = document.getElementById(id);
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    // Touch and drag joystick
+    let isDragging = false;
+    let baseCenter = { x: 0, y: 0 };
+    let maxRadius = 45;
+    const joystickArena = document.getElementById('joystickArena');
+    const vJoyBase = document.getElementById('vJoyBase');
+    const vJoyStick = document.getElementById('vJoyStick');
+    const arenaStatus = document.getElementById('arenaStatus');
+
+    function initJoy() {
+      const baseRect = vJoyBase.getBoundingClientRect();
+      baseCenter = { x: baseRect.left + baseRect.width / 2, y: baseRect.top + baseRect.height / 2 };
+      maxRadius = baseRect.width / 2;
+    }
+
+    function handleJoyStart(clientX, clientY) {
+      initJoy();
+      isDragging = true;
+      handleJoyMove(clientX, clientY);
+    }
+
+    function handleJoyMove(clientX, clientY) {
+      if (!isDragging) return;
+      const dx = clientX - baseCenter.x;
+      const dy = clientY - baseCenter.y;
+      const distance = Math.sqrt(dx * dx + dy * dy);
+      const angle = Math.atan2(dy, dx);
+
+      const clampedDist = Math.min(distance, maxRadius);
+      const stickX = Math.cos(angle) * clampedDist;
+      const stickY = Math.sin(angle) * clampedDist;
+
+      vJoyStick.style.transform = `translate(${stickX}px, ${stickY}px)`;
+
+      const sprintDist = maxRadius * (state.results.tilt / 100) * 0.9;
+      if (distance >= sprintDist && stickY < 0) {
+        arenaStatus.innerHTML = '<b style="color:var(--accent-orange)">⚡ TO\'LIQ SPRINT FAOL</b>';
+        arenaStatus.style.background = 'rgba(255, 106, 0, 0.25)';
+      } else if (distance > 8) {
+        arenaStatus.innerHTML = '<span style="color:var(--accent-cyan)">🚶 JIGGLE / QADAM</span>';
+        arenaStatus.style.background = 'rgba(0,0,0,0.6)';
+      } else {
+        arenaStatus.innerHTML = 'Joystik markazda';
+        arenaStatus.style.background = 'rgba(0,0,0,0.6)';
+      }
+    }
+
+    function handleJoyEnd() {
+      isDragging = false;
+      vJoyStick.style.transform = 'translate(0px, 0px)';
+      arenaStatus.innerHTML = 'Joystik markazda — Barmog\'ingiz bilan bosing va suring';
+      arenaStatus.style.background = 'rgba(0,0,0,0.5)';
+    }
+
+    joystickArena.addEventListener('touchstart', e => handleJoyStart(e.touches[0].clientX, e.touches[0].clientY), { passive: false });
+    window.addEventListener('touchmove', e => { if (isDragging) { handleJoyMove(e.touches[0].clientX, e.touches[0].clientY); e.preventDefault(); } }, { passive: false });
+    window.addEventListener('touchend', handleJoyEnd);
+
+    joystickArena.addEventListener('mousedown', e => handleJoyStart(e.clientX, e.clientY));
+    window.addEventListener('mousemove', e => { if (isDragging) handleJoyMove(e.clientX, e.clientY); });
+    window.addEventListener('mouseup', handleJoyEnd);
+
+    // Event listeners
+    document.querySelectorAll('#phoneChips .chip-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        playTapSound();
+        document.querySelectorAll('#phoneChips .chip-btn').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        state.phone = btn.getAttribute('data-model');
+        document.getElementById('phoneInput').value = state.phone;
+        state.hz = parseInt(btn.getAttribute('data-hz'));
+        state.dpi = parseInt(btn.getAttribute('data-dpi'));
+        document.getElementById('dpiSlider').value = state.dpi;
+        document.getElementById('dpiDisplay').textContent = state.dpi + ' DPI';
+        document.getElementById('topStatusBadge').textContent = state.hz + 'Hz ULTRA';
+
+        document.querySelectorAll('#hzSelector .select-card').forEach(c => {
+          c.classList.toggle('active', parseInt(c.getAttribute('data-hz')) === state.hz);
+        });
+        document.getElementById('hzLabel').textContent = state.hz + ' Hz tanlangan';
+
+        calculateAll();
+        showToast(`📱 ${state.phone} parametrlariga moslandi!`);
+        triggerHaptic();
+      });
+    });
+
+    document.getElementById('phoneInput').addEventListener('input', e => {
+      state.phone = e.target.value.trim() || 'Custom Telefon';
+      document.getElementById('specDevicePill').textContent = '📱 ' + state.phone;
+      calculateAll();
+    });
+
+    document.querySelectorAll('#hzSelector .select-card').forEach(card => {
+      card.addEventListener('click', () => {
+        playTapSound();
+        document.querySelectorAll('#hzSelector .select-card').forEach(c => c.classList.remove('active'));
+        card.classList.add('active');
+        state.hz = parseInt(card.getAttribute('data-hz'));
+        document.getElementById('hzLabel').textContent = state.hz + ' Hz tanlangan';
+        document.getElementById('topStatusBadge').textContent = state.hz + 'Hz ULTRA';
+        calculateAll();
+        triggerHaptic();
+      });
+    });
+
+    document.getElementById('dpiSlider').addEventListener('input', e => {
+      state.dpi = parseInt(e.target.value);
+      document.getElementById('dpiDisplay').textContent = state.dpi + ' DPI';
+      document.getElementById('specDpiPill').textContent = '🎯 ' + state.dpi + ' DPI';
+    });
+    document.getElementById('dpiSlider').addEventListener('change', () => {
+      playTapSound();
+      calculateAll();
+    });
+
+    document.querySelectorAll('#clawSelector .select-card').forEach(c => {
+      c.addEventListener('click', () => {
+        playTapSound();
+        document.querySelectorAll('#clawSelector .select-card').forEach(x => x.classList.remove('active'));
+        c.classList.add('active');
+        state.claw = parseInt(c.getAttribute('data-claw'));
+        document.getElementById('clawLabel').textContent = state.claw + ' Barmoq';
+        calculateAll();
+        triggerHaptic();
+      });
+    });
+
+    document.querySelectorAll('#playstyleSelector .select-card').forEach(c => {
+      c.addEventListener('click', () => {
+        playTapSound();
+        document.querySelectorAll('#playstyleSelector .select-card').forEach(x => x.classList.remove('active'));
+        c.classList.add('active');
+        state.playstyle = c.getAttribute('data-style');
+        document.getElementById('playstyleLabel').textContent = c.querySelector('.title').textContent;
+        calculateAll();
+        triggerHaptic();
+      });
+    });
+
+    document.querySelectorAll('#sensStyleSelector .select-card').forEach(c => {
+      c.addEventListener('click', () => {
+        playTapSound();
+        document.querySelectorAll('#sensStyleSelector .select-card').forEach(x => x.classList.remove('active'));
+        c.classList.add('active');
+        state.sens = c.getAttribute('data-sens');
+        document.getElementById('sensStyleLabel').textContent = c.querySelector('.title').textContent;
+        calculateAll();
+        triggerHaptic();
+      });
+    });
+
+    document.querySelectorAll('#gyroSelector .select-card').forEach(c => {
+      c.addEventListener('click', () => {
+        playTapSound();
+        document.querySelectorAll('#gyroSelector .select-card').forEach(x => x.classList.remove('active'));
+        c.classList.add('active');
+        state.gyro = c.getAttribute('data-gyro');
+        document.getElementById('gyroLabel').textContent = c.querySelector('.title').textContent;
+        calculateAll();
+        triggerHaptic();
+      });
+    });
+
+    // Toast
+    let toastTimeout;
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      document.getElementById('toastMsg').textContent = msg;
+      toast.classList.add('show');
+      clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(() => toast.classList.remove('show'), 2500);
+    }
+
+    // Telegram Mini App (WebApp) Integration
+    if (window.Telegram && window.Telegram.WebApp) {
+      try {
+        const tg = window.Telegram.WebApp;
+        tg.ready();
+        tg.expand();
+        tg.setHeaderColor('#07090e');
+        tg.setBackgroundColor('#07090e');
+      } catch (e) {}
+    }
+
+    function triggerHaptic() {
+      if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.HapticFeedback) {
+        try { window.Telegram.WebApp.HapticFeedback.impactOccurred('light'); } catch (e) {}
+      }
+      if (navigator.vibrate) navigator.vibrate(25);
+    }
+
+    // Ambient particles
+    const canvas = document.getElementById('bgCanvas');
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+    function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    class Particle {
+      constructor() { this.reset(); }
+      reset() {
+        this.x = Math.random() * canvas.width;
+        this.y = canvas.height + Math.random() * 50;
+        this.size = Math.random() * 2.5 + 0.8;
+        this.speedY = Math.random() * 0.7 + 0.2;
+        this.speedX = (Math.random() - 0.5) * 0.4;
+        this.alpha = Math.random() * 0.7 + 0.2;
+        this.color = Math.random() > 0.3 ? '255, 106, 0' : '255, 170, 0';
+      }
+      update() {
+        this.y -= this.speedY;
+        this.x += this.speedX;
+        this.alpha -= 0.002;
+        if (this.y < -20 || this.alpha <= 0) this.reset();
+      }
+      draw() {
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(${this.color}, ${this.alpha})`;
+        ctx.fill();
+      }
+    }
+
+    for (let i = 0; i < 28; i++) {
+      const p = new Particle();
+      p.y = Math.random() * canvas.height;
+      particles.push(p);
+    }
+
+    function anim() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      particles.forEach(p => { p.update(); p.draw(); });
+      requestAnimationFrame(anim);
+    }
+    anim();
+
+    // Initial run
+    calculateAll(false);
+  </script>
+</body>
+</html>
